@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:algo_project/home_page.dart';
+import 'package:algo_project/ui/home_page.dart';
 import 'package:get/get.dart';
 
 void main() {

@@ -1,7 +1,9 @@
+import 'package:algo_project/constants.dart';
+import 'package:algo_project/ui/score_board.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'home_controller.dart';
+import '../home_controller.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -10,20 +12,20 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     HomeController hC = Get.put(HomeController());
 
-    Widget drawCell(String type) {
-      //if (type == ' ') return const SizedBox.shrink();
+    Widget drawCell(int row, int column) {
+      String type = hC.cells[row][column];
       if (type == 'a' || type == '/') {
         return Container(
           width: 30,
           height: 30,
           alignment: Alignment.center,
-          margin: const EdgeInsets.all(1),
+          //margin: const EdgeInsets.all(1),
           decoration: BoxDecoration(
             //color: cellColor(hC.currentBoard.cells[i][j]),
-            borderRadius: BorderRadius.circular(2),
+            //borderRadius: BorderRadius.circular(2),
             border: Border.all(
-              color: Color(0xFFD4AF37),
-              width: 2,
+              color: kMainColor,
+              width: 1.2,
             ),
           ),
         );
@@ -33,37 +35,40 @@ class HomePage extends StatelessWidget {
           width: 30,
           height: 30,
           alignment: Alignment.center,
-          margin: const EdgeInsets.all(1),
+          //margin: const EdgeInsets.all(1),
           decoration: BoxDecoration(
             //color: cellColor(hC.currentBoard.cells[i][j]),
-            borderRadius: BorderRadius.circular(2),
+            //borderRadius: BorderRadius.circular(2),
             border: Border.all(
-              color: Color(0xFFD4AF37),
-              width: 2,
+              color: kBoardColor,
+              width: 1,
             ),
           ),
         );
       }
       if (type == 'x') {
         return Container(
+          // width: row < 8 || row > 10 ? 30 : 20,
+          // height: row < 8 || row > 10 ? 20 : 30,
           width: 30,
           height: 30,
           alignment: Alignment.center,
-          margin: const EdgeInsets.all(1),
+          //margin: const EdgeInsets.all(1),
           decoration: BoxDecoration(
             //color: cellColor(hC.currentBoard.cells[i][j]),
             borderRadius: BorderRadius.circular(2),
             border: Border.all(
-              color: Color(0xFFD4AF37),
-              width: 1.5,
+              color: kMainColor,
+              width: 1.2,
             ),
           ),
           child: Center(
-              child: Icon(
-            Icons.close,
-            color: Color(0xFFD4AF37),
-            size: 22,
-          )),
+            child: Icon(
+              Icons.close,
+              color: kMainColor,
+              size: 23,
+            ),
+          ),
         );
       }
       return const SizedBox(
@@ -80,16 +85,16 @@ class HomePage extends StatelessWidget {
         ),
         itemBuilder: (BuildContext context, int index) {
           int gridStateLength = hC.cells.length;
-          int x, y = 0;
-          x = (index / gridStateLength).floor();
-          y = (index % gridStateLength);
+          int r, c = 0;
+          r = (index / gridStateLength).floor();
+          c = (index % gridStateLength);
           return GestureDetector(
             onTap: () {
-              //_gridItemTapped(x, y);
-              print("($x,$y)");
+              //_gridItemTapped(r, r);
+              print("($r,$c)");
             },
             child: Center(
-              child: drawCell(hC.cells[x][y]),
+              child: drawCell(r, c),
             ),
           );
         },
@@ -101,12 +106,16 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xff232323),
         centerTitle: true,
-        title: const Text(
-          "برسيس",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 32,
-            color: Color(0xFFD4AF37),
+        title: Padding(
+          padding: const EdgeInsets.only(bottom: 2),
+          child: Text(
+            "لعبة برسيس",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 36,
+              color: kMainColor,
+              //wordSpacing: 20,
+            ),
           ),
         ),
         actions: [
@@ -123,25 +132,34 @@ class HomePage extends StatelessWidget {
       body: GetBuilder<HomeController>(
         builder: (con) {
           return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              ScoreBoard(title: "اللاعب 1", iconData: Icons.person, content: []),
               Container(
-                margin: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(6),
+                margin: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                    color: Color(0xFF3F0000),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color: Color(0xFFD4AF37),
-                      width: 3,
-                    )),
+                  color: kBoardColor,
+                  borderRadius: BorderRadius.circular(16),
+                ),
 
                 //height: 800,
                 width: 560,
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: buildGameBody(),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: kMainColor,
+                      width: 3,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: buildGameBody(),
+                  ),
                 ),
               ),
+              ScoreBoard(title: "اللاعب 2", iconData: Icons.computer, content: []),
             ],
           );
         },
