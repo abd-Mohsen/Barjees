@@ -15,6 +15,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Barsis game',
       home: HomePage(),
+      locale: Locale('ar'),
+      themeMode: ThemeMode.dark,
     );
   }
 }
