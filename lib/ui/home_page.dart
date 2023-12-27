@@ -13,7 +13,7 @@ class HomePage extends StatelessWidget {
     HomeController hC = Get.put(HomeController());
 
     Widget drawCell(int row, int column) {
-      String type = hC.cells[row][column];
+      String type = hC.initBoard.cells[row][column];
       if (type == 'a' || type == '/') {
         return Container(
           width: 30,
@@ -78,20 +78,20 @@ class HomePage extends StatelessWidget {
     }
 
     Widget buildGameBody() {
-      int gridStateLength = hC.cells.length;
+      int gridStateLength = hC.initBoard.cells.length;
       return GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: gridStateLength,
         ),
         itemBuilder: (BuildContext context, int index) {
-          int gridStateLength = hC.cells.length;
+          int gridStateLength = hC.initBoard.cells.length;
           int r, c = 0;
           r = (index / gridStateLength).floor();
           c = (index % gridStateLength);
           return GestureDetector(
             onTap: () {
               //_gridItemTapped(r, r);
-              print("($r,$c)");
+              print("[$r,$c],");
             },
             child: Center(
               child: drawCell(r, c),
@@ -122,9 +122,16 @@ class HomePage extends StatelessWidget {
           IconButton(
             tooltip: "restart",
             onPressed: () {
-              //
+              hC.restartGame();
             },
             icon: const Icon(Icons.refresh),
+          ),
+          IconButton(
+            tooltip: "restart",
+            onPressed: () {
+              hC.drawPath();
+            },
+            icon: const Icon(Icons.account_tree_sharp),
           ),
         ],
       ),
@@ -134,7 +141,15 @@ class HomePage extends StatelessWidget {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ScoreBoard(title: "اللاعب 1", iconData: Icons.person, content: []),
+              ScoreBoard(
+                title: "اللاعب 1",
+                iconData: Icons.person,
+                active: hC.role,
+                content: [],
+                onPressed: () {
+                  con.throwDice();
+                },
+              ),
               Container(
                 padding: const EdgeInsets.all(6),
                 margin: const EdgeInsets.all(16),
@@ -159,7 +174,13 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
-              ScoreBoard(title: "اللاعب 2", iconData: Icons.computer, content: []),
+              ScoreBoard(
+                title: "اللاعب 2",
+                iconData: Icons.computer,
+                active: !hC.role,
+                content: [],
+                onPressed: () {},
+              ),
             ],
           );
         },
