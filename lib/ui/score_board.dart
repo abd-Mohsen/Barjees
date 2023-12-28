@@ -14,7 +14,7 @@ class ScoreBoard extends StatelessWidget {
 
   final String title;
   final IconData iconData;
-  final List<Widget> content;
+  final List<String> content;
   final bool active;
   final void Function() onPressed;
 
@@ -56,7 +56,21 @@ class ScoreBoard extends StatelessWidget {
               ),
             ],
           ),
-          ...content,
+          Expanded(
+            child: ListView.builder(
+              itemCount: content.length,
+              itemBuilder: (context, i) => Center(
+                child: Text(
+                  content[i],
+                  style: TextStyle(
+                    fontSize: 18,
+                    letterSpacing: 0,
+                    color: kNormalColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
           Visibility(
             visible: active,
             child: Padding(

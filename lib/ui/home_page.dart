@@ -145,7 +145,7 @@ class HomePage extends StatelessWidget {
                 title: "اللاعب 1",
                 iconData: Icons.person,
                 active: hC.role,
-                content: [],
+                content: hC.actions,
                 onPressed: () {
                   con.throwDice();
                 },
