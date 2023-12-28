@@ -26,3 +26,7 @@ class Board {
     print("");
   }
 }
+
+enum Action {
+  uncle,
+}

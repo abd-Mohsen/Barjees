@@ -1,8 +1,10 @@
 import 'dart:math';
 
+import 'package:algo_project/ui/shell.dart';
 import 'package:get/get.dart';
-
+import 'package:flutter/material.dart';
 import 'board.dart';
+import 'constants.dart';
 
 class HomeController extends GetxController {
   // 19 * 19 grid
@@ -212,18 +214,19 @@ class HomeController extends GetxController {
   // location of every player2 pieces on path2
   List<int> p2 = [-1, -1, -1, -1];
 
+  // throw name, depending on the num of closed shells
   final Map<int, String> throwName = {
-    0: "بارا",
-    1: "بنج",
-    2: "أربعة",
+    0: "شكة",
+    1: "دست",
+    2: "دواق",
     3: "تلاتة",
-    4: "دواق",
-    5: "دست",
-    6: "شكة",
+    4: "أربعة",
+    5: "بنج",
+    6: "بارا",
   };
 
   // x cells
-  List<List<int>> protected = [
+  List<List<int>> castle = [
     [2, 10],
     [2, 8],
     [8, 2],
@@ -234,7 +237,8 @@ class HomeController extends GetxController {
     [8, 16],
   ];
 
-  List<List<int>> kitchen = [
+  // cells in the middle
+  List<List<int>> inside = [
     [8, 10],
     [8, 9],
     [8, 8],
@@ -270,6 +274,26 @@ class HomeController extends GetxController {
   int throwDice() {
     int res = Random().nextInt(7);
     print(throwName[res]);
+    List<Widget> shells = [];
+    for (int i = 0; i < 6; i++) {
+      shells.add(Shell(closed: i < res));
+    }
+    Get.showSnackbar(
+      GetSnackBar(
+        duration: const Duration(seconds: 2),
+        titleText: Text(
+          throwName[res]!,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            color: kNormalColor,
+          ),
+        ),
+        messageText: Row(
+          children: shells,
+        ),
+      ),
+    );
     return res;
   }
 }

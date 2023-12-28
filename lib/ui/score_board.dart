@@ -27,7 +27,7 @@ class ScoreBoard extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(
           width: 5,
-          color: active ? Colors.green : kNormalColor,
+          color: active ? kNormalColor : kNormalColor.withOpacity(0.3),
         ),
       ),
       child: Column(
@@ -38,7 +38,7 @@ class ScoreBoard extends StatelessWidget {
               const SizedBox(height: 8),
               Icon(
                 iconData,
-                color: kNormalColor,
+                color: active ? kNormalColor : kNormalColor.withOpacity(0.3),
                 size: 40,
               ),
               Text(
@@ -46,12 +46,13 @@ class ScoreBoard extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 24,
-                  color: kNormalColor,
+                  letterSpacing: 0,
+                  color: active ? kNormalColor : kNormalColor.withOpacity(0.3),
                 ),
               ),
               Divider(
                 thickness: 5,
-                color: active ? Colors.green : kNormalColor,
+                color: active ? kNormalColor : kNormalColor.withOpacity(0.3),
               ),
             ],
           ),
