@@ -91,7 +91,7 @@ class HomePage extends StatelessWidget {
           return GestureDetector(
             onTap: () {
               //_gridItemTapped(r, r);
-              print("[$r,$c],");
+              print("Coordinates(row: $r, column: $c),");
             },
             child: Center(
               child: drawCell(r, c),
@@ -141,14 +141,10 @@ class HomePage extends StatelessWidget {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ScoreBoard(
+              const ScoreBoard(
                 title: "اللاعب 1",
                 iconData: Icons.person,
-                active: hC.role,
-                content: hC.actions,
-                onPressed: () {
-                  con.throwDice();
-                },
+                player: true,
               ),
               Container(
                 padding: const EdgeInsets.all(6),
@@ -174,12 +170,10 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
-              ScoreBoard(
+              const ScoreBoard(
                 title: "اللاعب 2",
                 iconData: Icons.computer,
-                active: !hC.role,
-                content: [],
-                onPressed: () {},
+                player: false,
               ),
             ],
           );

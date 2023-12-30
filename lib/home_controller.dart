@@ -63,7 +63,7 @@ class HomeController extends GetxController {
   // is player1 role
   bool role = true;
 
-  // path that player1 takes to reach kitchen
+  // path that player1 stones take to reach kitchen
   final List<List<int>> path1 = [
     [9, 7],
     [9, 6],
@@ -150,7 +150,7 @@ class HomeController extends GetxController {
     [9, 7],
   ];
 
-  // path that player1 takes to reach kitchen
+  // path that player2 stones take to reach kitchen
   final List<List<int>> path2 = [
     [9, 11],
     [9, 12],
@@ -162,6 +162,7 @@ class HomeController extends GetxController {
     [9, 18],
     [10, 18],
     [10, 17],
+    [10, 16],
     [10, 15],
     [10, 14],
     [10, 13],
@@ -181,6 +182,7 @@ class HomeController extends GetxController {
     [16, 8],
     [15, 8],
     [14, 8],
+    [13, 8],
     [12, 8],
     [11, 8],
     [10, 7],
@@ -192,17 +194,44 @@ class HomeController extends GetxController {
     [10, 1],
     [10, 0],
     [9, 0],
+    [8, 0],
     [8, 1],
+    [8, 2],
+    [8, 3],
+    [8, 4],
+    [8, 5],
+    [8, 6],
+    [8, 7],
+    [7, 8],
+    [6, 8],
+    [5, 8],
+    [4, 8],
+    [3, 8],
+    [2, 8],
+    [1, 8],
+    [0, 8],
+    [0, 9],
+    [0, 10],
+    [1, 10],
+    [2, 10],
+    [3, 10],
     [4, 10],
     [5, 10],
     [6, 10],
     [7, 10],
     [8, 11],
+    [8, 12],
+    [8, 13],
+    [8, 14],
     [8, 15],
+    [8, 16],
+    [8, 17],
+    [8, 18],
     [9, 18],
     [9, 17],
     [9, 16],
     [9, 15],
+    [9, 14],
     [9, 13],
     [9, 12],
     [9, 11],
@@ -276,7 +305,7 @@ class HomeController extends GetxController {
     update();
   }
 
-  int throwDice() {
+  int throwShells() {
     if (remainingThrows < 1) return 0;
     //int res = Random().nextInt(7);
     int res = randomWithProbability();
@@ -284,7 +313,7 @@ class HomeController extends GetxController {
     for (int i = 0; i < 6; i++) {
       shells.add(Shell(closed: i < res));
     }
-    // todo: for each case, add actions, and handle re-throw (5,6,0 cases)
+
     switch (res) {
       case 0:
         {
@@ -325,6 +354,10 @@ class HomeController extends GetxController {
         print("wtf");
     }
     remainingThrows--;
+    if (remainingThrows == 0 && actions.isEmpty) {
+      role = !role;
+      remainingThrows++;
+    }
     update();
     Get.showSnackbar(
       GetSnackBar(
