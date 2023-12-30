@@ -59,7 +59,7 @@ class ScoreBoard extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: hC.actions.length,
+                itemCount: active ? hC.actions.length : 0,
                 itemBuilder: (context, i) => Center(
                   child: Text(
                     hC.actions[i],
@@ -80,7 +80,7 @@ class ScoreBoard extends StatelessWidget {
                   onTap: () => hC.throwShells(),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: hC.remainingThrows > 0 ? Colors.purpleAccent : Colors.grey,
+                      color: hC.remainingThrows > 0 ? Colors.redAccent : Colors.grey,
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Padding(

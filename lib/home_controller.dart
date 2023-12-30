@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:algo_project/position.dart';
 import 'package:algo_project/ui/shell.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -35,24 +36,24 @@ class HomeController extends GetxController {
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
   ];
 
-  List<List<String>> getLevel(List<List<String>> level) {
-    List<List<String>> copied = [];
+  List<List<String>> deepCopyMatrix(List<List<String>> og) {
+    List<List<String>> copy = [];
 
-    for (List<String> row in level) {
+    for (List<String> row in og) {
       List<String> temp = [];
       for (String cell in row) {
         temp.add(cell);
       }
-      copied.add(temp);
+      copy.add(temp);
     }
-    return copied;
+    return copy;
   }
 
   late Board initBoard;
   @override
   void onInit() {
     initBoard = Board(
-      cells: getLevel(initCells),
+      cells: deepCopyMatrix(initCells),
       cost: 1,
       depth: 0,
       heuristic: 0,
@@ -64,177 +65,177 @@ class HomeController extends GetxController {
   bool role = true;
 
   // path that player1 stones take to reach kitchen
-  final List<List<int>> path1 = [
-    [9, 7],
-    [9, 6],
-    [9, 5],
-    [9, 4],
-    [9, 3],
-    [9, 2],
-    [9, 1],
-    [9, 0],
-    [8, 0],
-    [8, 1],
-    [8, 2],
-    [8, 3],
-    [8, 4],
-    [8, 5],
-    [8, 6],
-    [8, 7],
-    [7, 8],
-    [6, 8],
-    [5, 8],
-    [4, 8],
-    [3, 8],
-    [2, 8],
-    [1, 8],
-    [0, 8],
-    [0, 9],
-    [0, 10],
-    [1, 10],
-    [2, 10],
-    [3, 10],
-    [4, 10],
-    [5, 10],
-    [6, 10],
-    [7, 10],
-    [8, 11],
-    [8, 12],
-    [8, 13],
-    [8, 14],
-    [8, 15],
-    [8, 16],
-    [8, 17],
-    [8, 18],
-    [9, 18],
-    [10, 18],
-    [10, 17],
-    [10, 16],
-    [10, 15],
-    [10, 14],
-    [10, 13],
-    [10, 12],
-    [10, 11],
-    [11, 10],
-    [12, 10],
-    [13, 10],
-    [14, 10],
-    [15, 10],
-    [16, 10],
-    [17, 10],
-    [18, 10],
-    [18, 9],
-    [18, 8],
-    [17, 8],
-    [16, 8],
-    [15, 8],
-    [14, 8],
-    [13, 8],
-    [12, 8],
-    [11, 8],
-    [10, 7],
-    [10, 6],
-    [10, 5],
-    [10, 4],
-    [10, 3],
-    [10, 2],
-    [10, 1],
-    [10, 0],
-    [9, 0],
-    [9, 1],
-    [9, 2],
-    [9, 3],
-    [9, 4],
-    [9, 5],
-    [9, 6],
-    [9, 7],
+  final List<Position> path1 = [
+    Position(9, 7),
+    Position(9, 6),
+    Position(9, 5),
+    Position(9, 4),
+    Position(9, 3),
+    Position(9, 2),
+    Position(9, 1),
+    Position(9, 0),
+    Position(8, 0),
+    Position(8, 1),
+    Position(8, 2),
+    Position(8, 3),
+    Position(8, 4),
+    Position(8, 5),
+    Position(8, 6),
+    Position(8, 7),
+    Position(7, 8),
+    Position(6, 8),
+    Position(5, 8),
+    Position(4, 8),
+    Position(3, 8),
+    Position(2, 8),
+    Position(1, 8),
+    Position(0, 8),
+    Position(0, 9),
+    Position(0, 10),
+    Position(1, 10),
+    Position(2, 10),
+    Position(3, 10),
+    Position(4, 10),
+    Position(5, 10),
+    Position(6, 10),
+    Position(7, 10),
+    Position(8, 11),
+    Position(8, 12),
+    Position(8, 13),
+    Position(8, 14),
+    Position(8, 15),
+    Position(8, 16),
+    Position(8, 17),
+    Position(8, 18),
+    Position(9, 18),
+    Position(10, 18),
+    Position(10, 17),
+    Position(10, 16),
+    Position(10, 15),
+    Position(10, 14),
+    Position(10, 13),
+    Position(10, 12),
+    Position(10, 11),
+    Position(11, 10),
+    Position(12, 10),
+    Position(13, 10),
+    Position(14, 10),
+    Position(15, 10),
+    Position(16, 10),
+    Position(17, 10),
+    Position(18, 10),
+    Position(18, 9),
+    Position(18, 8),
+    Position(17, 8),
+    Position(16, 8),
+    Position(15, 8),
+    Position(14, 8),
+    Position(13, 8),
+    Position(12, 8),
+    Position(11, 8),
+    Position(10, 7),
+    Position(10, 6),
+    Position(10, 5),
+    Position(10, 4),
+    Position(10, 3),
+    Position(10, 2),
+    Position(10, 1),
+    Position(10, 0),
+    Position(9, 0),
+    Position(9, 1),
+    Position(9, 2),
+    Position(9, 3),
+    Position(9, 4),
+    Position(9, 5),
+    Position(9, 6),
+    Position(9, 7),
   ];
 
   // path that player2 stones take to reach kitchen
-  final List<List<int>> path2 = [
-    [9, 11],
-    [9, 12],
-    [9, 13],
-    [9, 14],
-    [9, 15],
-    [9, 16],
-    [9, 17],
-    [9, 18],
-    [10, 18],
-    [10, 17],
-    [10, 16],
-    [10, 15],
-    [10, 14],
-    [10, 13],
-    [10, 12],
-    [10, 11],
-    [11, 10],
-    [12, 10],
-    [13, 10],
-    [14, 10],
-    [15, 10],
-    [16, 10],
-    [17, 10],
-    [18, 10],
-    [18, 9],
-    [18, 8],
-    [17, 8],
-    [16, 8],
-    [15, 8],
-    [14, 8],
-    [13, 8],
-    [12, 8],
-    [11, 8],
-    [10, 7],
-    [10, 6],
-    [10, 5],
-    [10, 4],
-    [10, 3],
-    [10, 2],
-    [10, 1],
-    [10, 0],
-    [9, 0],
-    [8, 0],
-    [8, 1],
-    [8, 2],
-    [8, 3],
-    [8, 4],
-    [8, 5],
-    [8, 6],
-    [8, 7],
-    [7, 8],
-    [6, 8],
-    [5, 8],
-    [4, 8],
-    [3, 8],
-    [2, 8],
-    [1, 8],
-    [0, 8],
-    [0, 9],
-    [0, 10],
-    [1, 10],
-    [2, 10],
-    [3, 10],
-    [4, 10],
-    [5, 10],
-    [6, 10],
-    [7, 10],
-    [8, 11],
-    [8, 12],
-    [8, 13],
-    [8, 14],
-    [8, 15],
-    [8, 16],
-    [8, 17],
-    [8, 18],
-    [9, 18],
-    [9, 17],
-    [9, 16],
-    [9, 15],
-    [9, 14],
-    [9, 13],
-    [9, 12],
-    [9, 11],
+  final List<Position> path2 = [
+    Position(9, 11),
+    Position(9, 12),
+    Position(9, 13),
+    Position(9, 14),
+    Position(9, 15),
+    Position(9, 16),
+    Position(9, 17),
+    Position(9, 18),
+    Position(10, 18),
+    Position(10, 17),
+    Position(10, 16),
+    Position(10, 15),
+    Position(10, 14),
+    Position(10, 13),
+    Position(10, 12),
+    Position(10, 11),
+    Position(11, 10),
+    Position(12, 10),
+    Position(13, 10),
+    Position(14, 10),
+    Position(15, 10),
+    Position(16, 10),
+    Position(17, 10),
+    Position(18, 10),
+    Position(18, 9),
+    Position(18, 8),
+    Position(17, 8),
+    Position(16, 8),
+    Position(15, 8),
+    Position(14, 8),
+    Position(13, 8),
+    Position(12, 8),
+    Position(11, 8),
+    Position(10, 7),
+    Position(10, 6),
+    Position(10, 5),
+    Position(10, 4),
+    Position(10, 3),
+    Position(10, 2),
+    Position(10, 1),
+    Position(10, 0),
+    Position(9, 0),
+    Position(8, 0),
+    Position(8, 1),
+    Position(8, 2),
+    Position(8, 3),
+    Position(8, 4),
+    Position(8, 5),
+    Position(8, 6),
+    Position(8, 7),
+    Position(7, 8),
+    Position(6, 8),
+    Position(5, 8),
+    Position(4, 8),
+    Position(3, 8),
+    Position(2, 8),
+    Position(1, 8),
+    Position(0, 8),
+    Position(0, 9),
+    Position(0, 10),
+    Position(1, 10),
+    Position(2, 10),
+    Position(3, 10),
+    Position(4, 10),
+    Position(5, 10),
+    Position(6, 10),
+    Position(7, 10),
+    Position(8, 11),
+    Position(8, 12),
+    Position(8, 13),
+    Position(8, 14),
+    Position(8, 15),
+    Position(8, 16),
+    Position(8, 17),
+    Position(8, 18),
+    Position(9, 18),
+    Position(9, 17),
+    Position(9, 16),
+    Position(9, 15),
+    Position(9, 14),
+    Position(9, 13),
+    Position(9, 12),
+    Position(9, 11),
   ];
 
   // location of every player1 piece on path1
@@ -254,30 +255,41 @@ class HomeController extends GetxController {
     6: "بارا",
   };
 
+  final Map<String, int> actionValue = {
+    "خال": 1,
+    "شكة": 6,
+    "دست": 10,
+    "دواق": 2,
+    "تلاتة": 3,
+    "أربعة": 4,
+    "بنج": 24,
+    "بارا": 12,
+  };
+
   // X cells
-  List<List<int>> castle = [
-    [2, 10],
-    [2, 8],
-    [8, 2],
-    [10, 2],
-    [16, 8],
-    [16, 10],
-    [10, 16],
-    [8, 16],
-  ];
+  Set<Position> castle = {
+    Position(2, 10),
+    Position(2, 8),
+    Position(8, 16),
+    Position(10, 16),
+    Position(8, 2),
+    Position(10, 2),
+    Position(16, 10),
+    Position(16, 8),
+  };
 
   // cells in the middle
-  List<List<int>> inside = [
-    [8, 10],
-    [8, 9],
-    [8, 8],
-    [9, 10],
-    [9, 9],
-    [9, 8],
-    [10, 10],
-    [10, 9],
-    [10, 8],
-  ];
+  Set<Position> inside = {
+    Position(8, 10),
+    Position(8, 9),
+    Position(8, 8),
+    Position(9, 10),
+    Position(9, 9),
+    Position(9, 8),
+    Position(10, 10),
+    Position(10, 9),
+    Position(10, 8),
+  };
 
   List<String> actions = [];
 
@@ -285,19 +297,19 @@ class HomeController extends GetxController {
 
   // just a test, don't mind it
   void drawPath() async {
-    for (List<int> coordinates in path2) {
-      initBoard.cells[coordinates[0]][coordinates[1]] == ' ' || initBoard.cells[coordinates[0]][coordinates[1]] == 'k'
-          ? initBoard.cells[coordinates[0]][coordinates[1]] = 'a'
-          : initBoard.cells[coordinates[0]][coordinates[1]] = ' ';
-      print("${coordinates[0]},${coordinates[1]}");
-      await Future.delayed(Duration(milliseconds: 400));
+    for (Position pos in inside) {
+      initBoard.cells[pos.r][pos.c] == ' ' || initBoard.cells[pos.r][pos.c] == 'k'
+          ? initBoard.cells[pos.r][pos.c] = 'a'
+          : initBoard.cells[pos.r][pos.c] = ' ';
+      print("${pos.r},${pos.c}");
+      await Future.delayed(const Duration(milliseconds: 200));
       update();
     }
   }
 
   void restartGame() {
     initBoard = Board(
-      cells: getLevel(initCells),
+      cells: deepCopyMatrix(initCells),
       cost: 1,
       depth: 0,
       heuristic: 0,
@@ -305,8 +317,8 @@ class HomeController extends GetxController {
     update();
   }
 
-  int throwShells() {
-    if (remainingThrows < 1) return 0;
+  void throwShells() {
+    if (remainingThrows == 0) return;
     //int res = Random().nextInt(7);
     int res = randomWithProbability();
     List<Widget> shells = [];
@@ -354,6 +366,7 @@ class HomeController extends GetxController {
         print("wtf");
     }
     remainingThrows--;
+    // or if there is no valid action for all player's stones
     if (remainingThrows == 0 && actions.isEmpty) {
       role = !role;
       remainingThrows++;
@@ -375,7 +388,6 @@ class HomeController extends GetxController {
         ),
       ),
     );
-    return res;
   }
 
   int randomWithProbability() {
@@ -397,5 +409,87 @@ class HomeController extends GetxController {
     } else {
       return 6;
     }
+  }
+
+  void doAction(int id, String action) {
+    if (remainingThrows > 0 || !validateAction(id, action)) return;
+
+    // get rid of switch case if we don't need it
+    switch (action) {
+      case "خال":
+        {
+          role ? p1[id]++ : p2[id]++;
+          actions.remove(action);
+        }
+      case "شكة":
+        {
+          role ? p1[id] += 6 : p2[id] += 6;
+          actions.remove(action);
+        }
+      case "دست":
+        {
+          role ? p1[id] += 10 : p2[id] += 10;
+          actions.remove(action);
+        }
+      case "دواق":
+        {
+          role ? p1[id] += 2 : p2[id] += 2;
+          actions.remove(action);
+        }
+      case "تلاتة":
+        {
+          role ? p1[id] += 3 : p2[id] += 3;
+          actions.remove(action);
+        }
+      case "أربعة":
+        {
+          role ? p1[id] += 4 : p2[id] += 4;
+          actions.remove(action);
+        }
+      case "بنج":
+        {
+          role ? p1[id] += 24 : p2[id] += 24;
+          actions.remove(action);
+        }
+      case "بارا":
+        {
+          role ? p1[id] += 12 : p2[id] += 12;
+          actions.remove(action);
+        }
+
+      default:
+        print("wtf");
+    }
+    // if actions is empty or there is no available action left , switch roles and increment throws
+  }
+
+  List<String> showActions(int id) {
+    List<String> res = [];
+    for (String action in actions.toSet()) {
+      // switch case, to show a msg for each action
+      // add to res if its valid
+    }
+    return res;
+  }
+
+  bool validateAction(int id, String action) {
+    return role ? p1[id] + actionValue[action]! < 84 : p2[id] + actionValue[action]! < 84;
+    // and check if there is no enemy at x
+  }
+
+  bool checkCastle(Position pos) {
+    //
+    for (int stone in p2) {
+      if (castle.contains(path2[stone])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool eliminate(List<int> pos) {
+    // not x
+    //
+    return false;
   }
 }
