@@ -279,7 +279,7 @@ class HomeController extends GetxController {
   };
 
   // cells in the middle
-  Set<Position> inside = {
+  Set<Position> kitchen = {
     Position(8, 10),
     Position(8, 9),
     Position(8, 8),
@@ -297,7 +297,7 @@ class HomeController extends GetxController {
 
   // just a test, don't mind it
   void drawPath() async {
-    for (Position pos in inside) {
+    for (Position pos in kitchen) {
       initBoard.cells[pos.r][pos.c] == ' ' || initBoard.cells[pos.r][pos.c] == 'k'
           ? initBoard.cells[pos.r][pos.c] = 'a'
           : initBoard.cells[pos.r][pos.c] = ' ';
@@ -319,7 +319,6 @@ class HomeController extends GetxController {
 
   void throwShells() {
     if (remainingThrows == 0) return;
-    //int res = Random().nextInt(7);
     int res = randomWithProbability();
     List<Widget> shells = [];
     for (int i = 0; i < 6; i++) {
@@ -367,7 +366,8 @@ class HomeController extends GetxController {
     }
     remainingThrows--;
     // or if there is no valid action for all player's stones
-    if (remainingThrows == 0 && actions.isEmpty) {
+    if (remainingThrows == 0 && (actions.isEmpty || !noActionAvailable())) {
+      actions.clear();
       role = !role;
       remainingThrows++;
     }
@@ -414,61 +414,25 @@ class HomeController extends GetxController {
   void doAction(int id, String action) {
     if (remainingThrows > 0 || !validateAction(id, action)) return;
 
-    // get rid of switch case if we don't need it
-    switch (action) {
-      case "خال":
-        {
-          role ? p1[id]++ : p2[id]++;
-          actions.remove(action);
-        }
-      case "شكة":
-        {
-          role ? p1[id] += 6 : p2[id] += 6;
-          actions.remove(action);
-        }
-      case "دست":
-        {
-          role ? p1[id] += 10 : p2[id] += 10;
-          actions.remove(action);
-        }
-      case "دواق":
-        {
-          role ? p1[id] += 2 : p2[id] += 2;
-          actions.remove(action);
-        }
-      case "تلاتة":
-        {
-          role ? p1[id] += 3 : p2[id] += 3;
-          actions.remove(action);
-        }
-      case "أربعة":
-        {
-          role ? p1[id] += 4 : p2[id] += 4;
-          actions.remove(action);
-        }
-      case "بنج":
-        {
-          role ? p1[id] += 24 : p2[id] += 24;
-          actions.remove(action);
-        }
-      case "بارا":
-        {
-          role ? p1[id] += 12 : p2[id] += 12;
-          actions.remove(action);
-        }
-
-      default:
-        print("wtf");
+    role ? p1[id] += actionValue[action]! : p2[id] += actionValue[action]!;
+    actions.remove(action);
+    eliminate(id); // pass the id of the eliminator
+    // if actions is empty or there is no available action left , switch roles and increment throws and empty actions
+    if (actions.isEmpty || noActionAvailable()) {
+      role = !role;
+      remainingThrows++;
+      actions.clear();
     }
-    // if actions is empty or there is no available action left , switch roles and increment throws
+    update();
   }
 
   List<String> showActions(int id) {
     List<String> res = [];
     for (String action in actions.toSet()) {
-      // switch case, to show a msg for each action
-      // add to res if its valid
-      print(action);
+      if (validateAction(id, action)) {
+        res.add(action);
+        print(action);
+      }
     }
     return res;
   }
@@ -477,25 +441,27 @@ class HomeController extends GetxController {
     int val = actionValue[action]!;
     bool blocked = role ? opponentInCastle(path1[p1[id] + val]) : opponentInCastle(path2[p2[id] + val]);
     bool outOfBounds = role ? p1[id] + val < 84 : p2[id] + val < 84;
-    return blocked || outOfBounds;
+    bool outside = (action != "خال" && role ? p1[id] == -1 : p2[id] == -1);
+    return !blocked && !outOfBounds && !outside;
   }
 
   bool opponentInCastle(Position pos) {
     if (role) {
       for (int stone in p2) {
-        if (path2[stone] == pos) return castle.contains(pos);
+        if (path2[stone] == pos && castle.contains(pos)) return true;
       }
       return false;
     }
 
     for (int stone in p1) {
-      if (path1[stone] == pos) return castle.contains(pos);
+      if (path1[stone] == pos && castle.contains(pos)) return true;
     }
     return false;
   }
 
-  bool eliminate(int id, Position pos) {
-    if (!opponentInCastle(pos)) return false;
+  bool eliminate(int id) {
+    Position pos = role ? path1[p1[id]] : path2[p2[id]];
+    if (opponentInCastle(pos)) return false;
     if (role) {
       for (int i = 0; i < p2.length; i++) {
         if (path2[p2[i]] == pos) {
@@ -513,5 +479,16 @@ class HomeController extends GetxController {
       }
     }
     return false;
+  }
+
+  bool noActionAvailable() {
+    for (String action in actions) {
+      for (int i = 0; i < 4; i++) {
+        if (validateAction(i, action)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 }
