@@ -468,28 +468,50 @@ class HomeController extends GetxController {
     for (String action in actions.toSet()) {
       // switch case, to show a msg for each action
       // add to res if its valid
+      print(action);
     }
     return res;
   }
 
   bool validateAction(int id, String action) {
-    return role ? p1[id] + actionValue[action]! < 84 : p2[id] + actionValue[action]! < 84;
-    // and check if there is no enemy at x
+    int val = actionValue[action]!;
+    bool blocked = role ? opponentInCastle(path1[p1[id] + val]) : opponentInCastle(path2[p2[id] + val]);
+    bool outOfBounds = role ? p1[id] + val < 84 : p2[id] + val < 84;
+    return blocked || outOfBounds;
   }
 
-  bool checkCastle(Position pos) {
-    //
-    for (int stone in p2) {
-      if (castle.contains(path2[stone])) {
-        return true;
+  bool opponentInCastle(Position pos) {
+    if (role) {
+      for (int stone in p2) {
+        if (path2[stone] == pos) return castle.contains(pos);
       }
+      return false;
+    }
+
+    for (int stone in p1) {
+      if (path1[stone] == pos) return castle.contains(pos);
     }
     return false;
   }
 
-  bool eliminate(List<int> pos) {
-    // not x
-    //
+  bool eliminate(int id, Position pos) {
+    if (!opponentInCastle(pos)) return false;
+    if (role) {
+      for (int i = 0; i < p2.length; i++) {
+        if (path2[p2[i]] == pos) {
+          p2[i] = -1;
+          return true;
+        }
+      }
+      return false;
+    }
+
+    for (int i = 0; i < p1.length; i++) {
+      if (path1[p1[i]] == pos) {
+        p1[i] = -1;
+        return true;
+      }
+    }
     return false;
   }
 }
