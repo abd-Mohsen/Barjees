@@ -19,8 +19,9 @@ class ScoreBoard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     HomeController hC = Get.find();
-    bool active = hC.role == player;
+
     return GetBuilder<HomeController>(builder: (con) {
+      bool active = hC.role == player;
       return Container(
         margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         width: 120,

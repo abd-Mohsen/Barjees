@@ -366,7 +366,8 @@ class HomeController extends GetxController {
     }
     remainingThrows--;
     // or if there is no valid action for all player's stones
-    if (remainingThrows == 0 && (actions.isEmpty || !noActionAvailable())) {
+    if (remainingThrows == 0 && (actions.isEmpty || noActionAvailable())) {
+      print("after throw");
       actions.clear();
       role = !role;
       remainingThrows++;
@@ -429,31 +430,32 @@ class HomeController extends GetxController {
   List<String> showActions(int id) {
     List<String> res = [];
     for (String action in actions.toSet()) {
-      if (validateAction(id, action)) {
-        res.add(action);
-        print(action);
-      }
+      if (validateAction(id, action)) res.add(action);
     }
+    print(res);
     return res;
   }
 
   bool validateAction(int id, String action) {
     int val = actionValue[action]!;
     bool blocked = role ? opponentInCastle(path1[p1[id] + val]) : opponentInCastle(path2[p2[id] + val]);
-    bool outOfBounds = role ? p1[id] + val < 84 : p2[id] + val < 84;
-    bool outside = (action != "خال" && role ? p1[id] == -1 : p2[id] == -1);
+    bool outOfBounds = role ? p1[id] + val > 84 : p2[id] + val > 84;
+    bool outside = action != "خال" && (role ? p1[id] == -1 : p2[id] == -1);
+    print("$action: $blocked, $outOfBounds, $outside");
     return !blocked && !outOfBounds && !outside;
   }
 
   bool opponentInCastle(Position pos) {
     if (role) {
       for (int stone in p2) {
+        if (stone == -1) continue;
         if (path2[stone] == pos && castle.contains(pos)) return true;
       }
       return false;
     }
 
     for (int stone in p1) {
+      if (stone == -1) continue;
       if (path1[stone] == pos && castle.contains(pos)) return true;
     }
     return false;
@@ -490,5 +492,10 @@ class HomeController extends GetxController {
       }
     }
     return true;
+  }
+
+  void test() {
+    role = !role;
+    update();
   }
 }

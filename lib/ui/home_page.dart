@@ -90,7 +90,6 @@ class HomePage extends StatelessWidget {
           c = (index % gridStateLength);
           return GestureDetector(
             onTap: () {
-              //_gridItemTapped(r, r);
               print("Position($r, $c),");
             },
             child: Center(
@@ -127,9 +126,11 @@ class HomePage extends StatelessWidget {
             icon: const Icon(Icons.refresh),
           ),
           IconButton(
-            tooltip: "restart",
+            tooltip: "test path",
             onPressed: () {
-              hC.drawPath();
+              //hC.drawPath();
+              //hC.showActions(0);
+              hC.test();
             },
             icon: const Icon(Icons.account_tree_sharp),
           ),
