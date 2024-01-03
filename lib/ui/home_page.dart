@@ -13,7 +13,7 @@ class HomePage extends StatelessWidget {
     HomeController hC = Get.put(HomeController());
 
     Widget drawCell(int row, int column) {
-      String type = hC.initBoard.cells[row][column];
+      String type = hC.initCells[row][column];
       if (type == 'a' || type == '/') {
         return Container(
           width: 30,
@@ -78,13 +78,13 @@ class HomePage extends StatelessWidget {
     }
 
     Widget buildGameBody() {
-      int gridStateLength = hC.initBoard.cells.length;
+      int gridStateLength = hC.initCells.length;
       return GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: gridStateLength,
         ),
         itemBuilder: (BuildContext context, int index) {
-          int gridStateLength = hC.initBoard.cells.length;
+          int gridStateLength = hC.initCells.length;
           int r, c = 0;
           r = (index / gridStateLength).floor();
           c = (index % gridStateLength);
@@ -93,7 +93,12 @@ class HomePage extends StatelessWidget {
               print("Position($r, $c),");
             },
             child: Center(
-              child: drawCell(r, c),
+              child: Stack(
+                children: [
+                  drawCell(r, c),
+                  // draw stone, and make stones positioned apart when there i more than one stone
+                ],
+              ),
             ),
           );
         },

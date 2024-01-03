@@ -49,11 +49,12 @@ class HomeController extends GetxController {
     return copy;
   }
 
-  late Board initBoard;
+  late Board currentBoard;
   @override
   void onInit() {
-    initBoard = Board(
-      cells: deepCopyMatrix(initCells),
+    currentBoard = Board(
+      player1: List.from(p1),
+      player2: List.from(p2),
       cost: 1,
       depth: 0,
       heuristic: 0,
@@ -296,20 +297,21 @@ class HomeController extends GetxController {
   int remainingThrows = 1;
 
   // just a test, don't mind it
-  void drawPath() async {
-    for (Position pos in kitchen) {
-      initBoard.cells[pos.r][pos.c] == ' ' || initBoard.cells[pos.r][pos.c] == 'k'
-          ? initBoard.cells[pos.r][pos.c] = 'a'
-          : initBoard.cells[pos.r][pos.c] = ' ';
-      print("${pos.r},${pos.c}");
-      await Future.delayed(const Duration(milliseconds: 200));
-      update();
-    }
-  }
+  // void drawPath() async {
+  //   for (Position pos in kitchen) {
+  //     initBoard.cells[pos.r][pos.c] == ' ' || initBoard.cells[pos.r][pos.c] == 'k'
+  //         ? initBoard.cells[pos.r][pos.c] = 'a'
+  //         : initBoard.cells[pos.r][pos.c] = ' ';
+  //     print("${pos.r},${pos.c}");
+  //     await Future.delayed(const Duration(milliseconds: 200));
+  //     update();
+  //   }
+  // }
 
   void restartGame() {
-    initBoard = Board(
-      cells: deepCopyMatrix(initCells),
+    currentBoard = Board(
+      player1: List.from(p1),
+      player2: List.from(p2),
       cost: 1,
       depth: 0,
       heuristic: 0,
@@ -415,10 +417,10 @@ class HomeController extends GetxController {
   void doAction(int id, String action) {
     if (remainingThrows > 0 || !validateAction(id, action)) return;
 
-    role ? p1[id] += actionValue[action]! : p2[id] += actionValue[action]!;
+    role ? currentBoard.player1[id] += actionValue[action]! : currentBoard.player2[id] += actionValue[action]!;
     actions.remove(action);
     eliminate(id); // pass the id of the eliminator
-    // if actions is empty or there is no available action left , switch roles and increment throws and empty actions
+
     if (actions.isEmpty || noActionAvailable()) {
       role = !role;
       remainingThrows++;
@@ -438,9 +440,11 @@ class HomeController extends GetxController {
 
   bool validateAction(int id, String action) {
     int val = actionValue[action]!;
-    bool blocked = role ? opponentInCastle(path1[p1[id] + val]) : opponentInCastle(path2[p2[id] + val]);
-    bool outOfBounds = role ? p1[id] + val > 84 : p2[id] + val > 84;
-    bool outside = action != "خال" && (role ? p1[id] == -1 : p2[id] == -1);
+    int pos1 = currentBoard.player1[id];
+    int pos2 = currentBoard.player2[id];
+    bool blocked = opponentInCastle(role ? path1[pos1 + val] : path2[pos2 + val]);
+    bool outOfBounds = role ? pos1 + val > 84 : pos2 + val > 84;
+    bool outside = action != "خال" && (role ? pos1 == -1 : pos2 == -1);
     print("$action: $blocked, $outOfBounds, $outside");
     return !blocked && !outOfBounds && !outside;
   }
