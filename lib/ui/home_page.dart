@@ -78,12 +78,13 @@ class HomePage extends StatelessWidget {
     }
 
     Widget buildGameBody() {
-      int gridStateLength = hC.initCells.length;
+      int rowsCount = hC.initCells.length;
       return GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: gridStateLength,
+          crossAxisCount: rowsCount,
         ),
-        itemBuilder: (BuildContext context, int index) {
+        itemCount: (rowsCount) * (rowsCount),
+        itemBuilder: (context, index) {
           int gridStateLength = hC.initCells.length;
           int r, c = 0;
           r = (index / gridStateLength).floor();
@@ -102,7 +103,6 @@ class HomePage extends StatelessWidget {
             ),
           );
         },
-        itemCount: (gridStateLength) * (gridStateLength),
       );
     }
 
