@@ -113,7 +113,7 @@ class HomePage extends StatelessWidget {
         title: Padding(
           padding: const EdgeInsets.only(bottom: 2),
           child: Text(
-            "لعبة برسيس",
+            "برجيس",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 36,
@@ -135,7 +135,7 @@ class HomePage extends StatelessWidget {
             onPressed: () {
               //hC.drawPath();
               //hC.showActions(0);
-              hC.test();
+              //hC.test();
             },
             icon: const Icon(Icons.account_tree_sharp),
           ),

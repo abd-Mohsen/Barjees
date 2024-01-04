@@ -21,7 +21,7 @@ class ScoreBoard extends StatelessWidget {
     HomeController hC = Get.find();
 
     return GetBuilder<HomeController>(builder: (con) {
-      bool active = hC.role == player;
+      bool active = hC.turn == player;
       return Container(
         margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         width: 120,

@@ -62,8 +62,8 @@ class HomeController extends GetxController {
     super.onInit();
   }
 
-  // is player1 role
-  bool role = true;
+  // is player1 turn
+  bool turn = true;
 
   // path that player1 stones take to reach kitchen
   final List<Position> path1 = [
@@ -371,7 +371,7 @@ class HomeController extends GetxController {
     if (remainingThrows == 0 && (actions.isEmpty || noActionAvailable())) {
       print("after throw");
       actions.clear();
-      role = !role;
+      turn = !turn;
       remainingThrows++;
     }
     update();
@@ -417,12 +417,12 @@ class HomeController extends GetxController {
   void doAction(int id, String action) {
     if (remainingThrows > 0 || !validateAction(id, action)) return;
 
-    role ? currentBoard.player1[id] += actionValue[action]! : currentBoard.player2[id] += actionValue[action]!;
+    turn ? currentBoard.player1[id] += actionValue[action]! : currentBoard.player2[id] += actionValue[action]!;
     actions.remove(action);
     eliminate(id); // pass the id of the eliminator
 
     if (actions.isEmpty || noActionAvailable()) {
-      role = !role;
+      turn = !turn;
       remainingThrows++;
       actions.clear();
     }
@@ -442,23 +442,23 @@ class HomeController extends GetxController {
     int val = actionValue[action]!;
     int pos1 = currentBoard.player1[id];
     int pos2 = currentBoard.player2[id];
-    bool blocked = opponentInCastle(role ? path1[pos1 + val] : path2[pos2 + val]);
-    bool outOfBounds = role ? pos1 + val > 84 : pos2 + val > 84;
-    bool outside = action != "خال" && (role ? pos1 == -1 : pos2 == -1);
+    bool blocked = opponentInCastle(turn ? path1[pos1 + val] : path2[pos2 + val]);
+    bool outOfBounds = turn ? pos1 + val > 84 : pos2 + val > 84;
+    bool outside = action != "خال" && (turn ? pos1 == -1 : pos2 == -1);
     print("$action: $blocked, $outOfBounds, $outside");
     return !blocked && !outOfBounds && !outside;
   }
 
   bool opponentInCastle(Position pos) {
-    if (role) {
-      for (int stone in p2) {
+    if (turn) {
+      for (int stone in currentBoard.player2) {
         if (stone == -1) continue;
         if (path2[stone] == pos && castle.contains(pos)) return true;
       }
       return false;
     }
 
-    for (int stone in p1) {
+    for (int stone in currentBoard.player1) {
       if (stone == -1) continue;
       if (path1[stone] == pos && castle.contains(pos)) return true;
     }
@@ -466,21 +466,24 @@ class HomeController extends GetxController {
   }
 
   bool eliminate(int id) {
-    Position pos = role ? path1[p1[id]] : path2[p2[id]];
+    List<int> pos1 = currentBoard.player1;
+    List<int> pos2 = currentBoard.player2;
+    // check if those two lists are passed by val or ref
+    Position pos = turn ? path1[pos1[id]] : path2[pos2[id]];
     if (opponentInCastle(pos)) return false;
-    if (role) {
-      for (int i = 0; i < p2.length; i++) {
-        if (path2[p2[i]] == pos) {
-          p2[i] = -1;
+    if (turn) {
+      for (int i = 0; i < 4; i++) {
+        if (path2[pos2[i]] == pos) {
+          pos2[i] = -1;
           return true;
         }
       }
       return false;
     }
 
-    for (int i = 0; i < p1.length; i++) {
-      if (path1[p1[i]] == pos) {
-        p1[i] = -1;
+    for (int i = 0; i < 4; i++) {
+      if (path1[pos1[i]] == pos) {
+        pos1[i] = -1;
         return true;
       }
     }
@@ -498,8 +501,16 @@ class HomeController extends GetxController {
     return true;
   }
 
-  void test() {
-    role = !role;
-    update();
+  // print current state
+  void printBoard() {
+    for (List<String> row in initCells) {
+      String s = "";
+      for (String cell in row) {
+        // print stone instead if exists in current position
+        s = '$s $cell ';
+      }
+      print(s);
+    }
+    print("");
   }
 }
