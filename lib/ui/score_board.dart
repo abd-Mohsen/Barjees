@@ -77,21 +77,27 @@ class ScoreBoard extends StatelessWidget {
               visible: active,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: GestureDetector(
-                  onTap: () => hC.throwShells(),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: hC.remainingThrows > 0 ? Colors.redAccent : Colors.grey,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        "ارمِ",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24,
-                          color: kNormalColor,
+                child: Tooltip(
+                  message: hC.remainingThrows > 0 ? "throw" : "do actions first",
+                  child: MouseRegion(
+                    cursor: hC.remainingThrows > 0 ? SystemMouseCursors.click : SystemMouseCursors.basic,
+                    child: GestureDetector(
+                      onTap: () => hC.throwShells(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: hC.remainingThrows > 0 ? Colors.redAccent : Colors.grey,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            "ارمِ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24,
+                              color: kNormalColor,
+                            ),
+                          ),
                         ),
                       ),
                     ),
