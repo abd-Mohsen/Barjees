@@ -84,6 +84,7 @@ class HomeController extends GetxController {
   bool turn = true;
 
   // path that player1 stones take to reach kitchen
+  //todo: add final pos to path1 and path2
   final List<Position> path1 = [
     Position(9, 7),
     Position(9, 6),
@@ -168,6 +169,7 @@ class HomeController extends GetxController {
     Position(9, 5),
     Position(9, 6),
     Position(9, 7),
+    Position(9, 8),
   ];
 
   // path that player2 stones take to reach kitchen
@@ -255,6 +257,7 @@ class HomeController extends GetxController {
     Position(9, 13),
     Position(9, 12),
     Position(9, 11),
+    Position(9, 10),
   ];
 
   // location of every player1 piece on path1
@@ -460,8 +463,10 @@ class HomeController extends GetxController {
     int val = actionValue[action]!;
     int pos1 = currentBoard.player1[id];
     int pos2 = currentBoard.player2[id];
-    bool blocked = opponentInCastle(turn ? path1[pos1 + val] : path2[pos2 + val]);
+    // todo: fix index out of bound here: check if > 83 before
     bool outOfBounds = turn ? pos1 + val > 84 : pos2 + val > 84;
+    if (outOfBounds) return false; // try this
+    bool blocked = opponentInCastle(turn ? path1[pos1 + val] : path2[pos2 + val]);
     bool outside = action != "خال" && (turn ? pos1 == -1 : pos2 == -1);
     //print("$action: $blocked, $outOfBounds, $outside");
     return !blocked && !outOfBounds && !outside;
@@ -536,22 +541,34 @@ class HomeController extends GetxController {
     return turn ? currentBoard.player1 : currentBoard.player2;
   }
 
-  List<StoneModel> getStones(int r, int c) {
-    //currentBoard.player1[i] == -1 ? Position(2 + i, 2) : path1[currentBoard.player1[i]],
-    //currentBoard.player2[i] == -1 ? Position(13 + i, 17) : path2[currentBoard.player2[i]],
+  List<StoneModel> getStones1(int r, int c) {
     List<StoneModel> res = [];
-    for (StoneModel stone in stones) {
+    for (StoneModel stone in stones.where((element) => element.player)) {
       List<int> pos1 = currentBoard.player1;
-      List<int> pos2 = currentBoard.player2;
+      if (pos1[stone.id] == 83) continue;
+      bool sameRow = pos1[stone.id] == -1 ? r == 2 + stone.id : r == path1[pos1[stone.id]].r;
 
-      bool sameRow = (pos1[stone.id] == -1 ? r == 2 + stone.id : r == path1[pos1[stone.id]].r) ||
-          (pos2[stone.id] == -1 ? r == 13 + stone.id : r == path2[pos1[stone.id]].r);
-
-      bool sameColumn = (pos1[stone.id] == -1 ? c == 2 : c == path1[pos1[stone.id]].c) ||
-          (pos2[stone.id] == -1 ? c == 17 : c == path2[pos1[stone.id]].c);
+      bool sameColumn = pos1[stone.id] == -1 ? c == 2 : c == path1[pos1[stone.id]].c;
 
       if (sameRow && sameColumn) res.add(stone);
     }
     return res;
   }
+
+  List<StoneModel> getStones2(int r, int c) {
+    //currentBoard.player1[i] == -1 ? Position(2 + i, 2) : path1[currentBoard.player1[i]],
+    //currentBoard.player2[i] == -1 ? Position(13 + i, 17) : path2[currentBoard.player2[i]],
+    List<StoneModel> res = [];
+    for (StoneModel stone in stones.where((element) => !element.player)) {
+      List<int> pos2 = currentBoard.player2;
+      if (pos2[stone.id] == 83) continue;
+      bool sameRow = (pos2[stone.id] == -1 ? r == 13 + stone.id : r == path2[pos2[stone.id]].r);
+
+      bool sameColumn = (pos2[stone.id] == -1 ? c == 17 : c == path2[pos2[stone.id]].c);
+
+      if (sameRow && sameColumn) res.add(stone);
+    }
+    return res;
+  }
+  // todo: arrange stones when they reach kitchen (or make stones disappear an put numbers in the middle)
 }

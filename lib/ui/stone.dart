@@ -61,7 +61,7 @@ class Stone extends StatelessWidget {
       },
       child: Icon(
         Icons.star,
-        size: 10,
+        size: 13,
         color: stone.player ? Colors.black : Colors.white,
       ),
     );
