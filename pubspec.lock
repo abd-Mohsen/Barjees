@@ -123,6 +123,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.3"
+  popover:
+    dependency: "direct main"
+    description:
+      name: popover
+      sha256: "59f4a55ebb484d012c8aaa273ad58eee571945231b71fb938c5a69f63b5a94d4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.8+2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -193,5 +201,5 @@ packages:
     source: hosted
     version: "0.1.4-beta"
 sdks:
-  dart: ">=3.1.0-185.0.dev <4.0.0"
+  dart: ">=3.1.0 <4.0.0"
   flutter: ">=3.13.0"

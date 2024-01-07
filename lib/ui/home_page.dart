@@ -1,5 +1,6 @@
 import 'package:algo_project/constants.dart';
 import 'package:algo_project/ui/score_board.dart';
+import 'package:algo_project/ui/stone.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -98,6 +99,11 @@ class HomePage extends StatelessWidget {
                 children: [
                   drawCell(r, c),
                   // draw stone, and make stones positioned apart when there i more than one stone
+                  Row(
+                    children: [
+                      ...hC.getStones(r, c).map((stone) => Stone(stone: stone)).toList(),
+                    ],
+                  )
                 ],
               ),
             ),

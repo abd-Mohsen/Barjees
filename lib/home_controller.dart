@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:algo_project/position.dart';
+import 'package:algo_project/stone_model.dart';
 import 'package:algo_project/ui/shell.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -59,8 +60,25 @@ class HomeController extends GetxController {
       depth: 0,
       heuristic: 0,
     );
+    List<StoneModel> stones1 = List.generate(
+      4,
+      (i) => StoneModel(
+        id: i,
+        player: true,
+      ),
+    );
+    List<StoneModel> stones2 = List.generate(
+      4,
+      (i) => StoneModel(
+        id: i,
+        player: false,
+      ),
+    );
+    stones = [...stones1, ...stones2];
     super.onInit();
   }
+
+  late List<StoneModel> stones;
 
   // is player1 turn
   bool turn = true;
@@ -296,17 +314,17 @@ class HomeController extends GetxController {
 
   int remainingThrows = 1;
 
-  // just a test, don't mind it
-  // void drawPath() async {
-  //   for (Position pos in kitchen) {
-  //     initBoard.cells[pos.r][pos.c] == ' ' || initBoard.cells[pos.r][pos.c] == 'k'
-  //         ? initBoard.cells[pos.r][pos.c] = 'a'
-  //         : initBoard.cells[pos.r][pos.c] = ' ';
-  //     print("${pos.r},${pos.c}");
-  //     await Future.delayed(const Duration(milliseconds: 200));
-  //     update();
-  //   }
-  // }
+  //just a test, don't mind it
+  void drawPath() async {
+    for (Position pos in kitchen) {
+      initCells[pos.r][pos.c] == ' ' || initCells[pos.r][pos.c] == 'k'
+          ? initCells[pos.r][pos.c] = 'a'
+          : initCells[pos.r][pos.c] = ' ';
+      print("${pos.r},${pos.c}");
+      await Future.delayed(const Duration(milliseconds: 200));
+      update();
+    }
+  }
 
   void restartGame() {
     currentBoard = Board(
@@ -377,7 +395,7 @@ class HomeController extends GetxController {
     update();
     Get.showSnackbar(
       GetSnackBar(
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
         titleText: Text(
           throwName[res]!,
           style: TextStyle(
@@ -445,7 +463,7 @@ class HomeController extends GetxController {
     bool blocked = opponentInCastle(turn ? path1[pos1 + val] : path2[pos2 + val]);
     bool outOfBounds = turn ? pos1 + val > 84 : pos2 + val > 84;
     bool outside = action != "خال" && (turn ? pos1 == -1 : pos2 == -1);
-    print("$action: $blocked, $outOfBounds, $outside");
+    //print("$action: $blocked, $outOfBounds, $outside");
     return !blocked && !outOfBounds && !outside;
   }
 
@@ -473,7 +491,7 @@ class HomeController extends GetxController {
     if (opponentInCastle(pos)) return false;
     if (turn) {
       for (int i = 0; i < 4; i++) {
-        if (path2[pos2[i]] == pos) {
+        if (pos2[i] != -1 && path2[pos2[i]] == pos) {
           pos2[i] = -1;
           return true;
         }
@@ -482,7 +500,7 @@ class HomeController extends GetxController {
     }
 
     for (int i = 0; i < 4; i++) {
-      if (path1[pos1[i]] == pos) {
+      if (pos1[i] != -1 && path1[pos1[i]] == pos) {
         pos1[i] = -1;
         return true;
       }
@@ -512,5 +530,28 @@ class HomeController extends GetxController {
       print(s);
     }
     print("");
+  }
+
+  List<int> getPositions() {
+    return turn ? currentBoard.player1 : currentBoard.player2;
+  }
+
+  List<StoneModel> getStones(int r, int c) {
+    //currentBoard.player1[i] == -1 ? Position(2 + i, 2) : path1[currentBoard.player1[i]],
+    //currentBoard.player2[i] == -1 ? Position(13 + i, 17) : path2[currentBoard.player2[i]],
+    List<StoneModel> res = [];
+    for (StoneModel stone in stones) {
+      List<int> pos1 = currentBoard.player1;
+      List<int> pos2 = currentBoard.player2;
+
+      bool sameRow = (pos1[stone.id] == -1 ? r == 2 + stone.id : r == path1[pos1[stone.id]].r) ||
+          (pos2[stone.id] == -1 ? r == 13 + stone.id : r == path2[pos1[stone.id]].r);
+
+      bool sameColumn = (pos1[stone.id] == -1 ? c == 2 : c == path1[pos1[stone.id]].c) ||
+          (pos2[stone.id] == -1 ? c == 17 : c == path2[pos1[stone.id]].c);
+
+      if (sameRow && sameColumn) res.add(stone);
+    }
+    return res;
   }
 }
