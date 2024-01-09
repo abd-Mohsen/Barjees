@@ -284,7 +284,7 @@ class HomeController extends GetxController {
     "دواق": 2,
     "تلاتة": 3,
     "أربعة": 4,
-    "بنج": 24,
+    "بنج": 25,
     "بارا": 12,
   };
 
@@ -488,29 +488,25 @@ class HomeController extends GetxController {
     return false;
   }
 
-  bool eliminate(int id) {
+  void eliminate(int id) {
     List<int> pos1 = currentBoard.player1;
     List<int> pos2 = currentBoard.player2;
     // check if those two lists are passed by val or ref
     Position pos = turn ? path1[pos1[id]] : path2[pos2[id]];
-    if (opponentInCastle(pos)) return false;
+    if (opponentInCastle(pos)) return;
     if (turn) {
       for (int i = 0; i < 4; i++) {
         if (pos2[i] != -1 && path2[pos2[i]] == pos) {
           pos2[i] = -1;
-          return true;
         }
       }
-      return false;
     }
 
     for (int i = 0; i < 4; i++) {
       if (pos1[i] != -1 && path1[pos1[i]] == pos) {
         pos1[i] = -1;
-        return true;
       }
     }
-    return false;
   }
 
   bool noActionAvailable() {
