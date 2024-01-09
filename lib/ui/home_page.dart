@@ -98,12 +98,28 @@ class HomePage extends StatelessWidget {
               child: Stack(
                 children: [
                   drawCell(r, c),
-                  // draw stone, and make stones positioned apart when there i more than one stone
-                  Row(
-                    children: [
-                      ...hC.getStones1(r, c).map((stone) => Stone(stone: stone)).toList(),
-                      ...hC.getStones2(r, c).map((stone) => Stone(stone: stone)).toList(),
-                    ],
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ...hC.getStones1(r, c).take(2).map((stone) => Stone(stone: stone)).toList(),
+                            ...hC.getStones2(r, c).take(2).map((stone) => Stone(stone: stone)).toList(),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (hC.getStones1(r, c).length > 2)
+                              ...hC.getStones1(r, c).sublist(2).map((stone) => Stone(stone: stone)).toList(),
+                            if (hC.getStones2(r, c).length > 2)
+                              ...hC.getStones2(r, c).sublist(2).map((stone) => Stone(stone: stone)).toList(),
+                          ],
+                        ),
+                      ],
+                    ),
                   )
                 ],
               ),

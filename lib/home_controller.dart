@@ -84,7 +84,7 @@ class HomeController extends GetxController {
   bool turn = true;
 
   // path that player1 stones take to reach kitchen
-  //todo: add final pos to path1 and path2
+
   final List<Position> path1 = [
     Position(9, 7),
     Position(9, 6),
@@ -260,10 +260,10 @@ class HomeController extends GetxController {
     Position(9, 10),
   ];
 
-  // location of every player1 piece on path1
+  // initial location of every player1 piece on path1
   List<int> p1 = [-1, -1, -1, -1];
 
-  // location of every player2 pieces on path2
+  // initial location of every player2 piece on path2
   List<int> p2 = [-1, -1, -1, -1];
 
   // throw name, depending on the num of closed shells
@@ -390,7 +390,7 @@ class HomeController extends GetxController {
     remainingThrows--;
     // or if there is no valid action for all player's stones
     if (remainingThrows == 0 && (actions.isEmpty || noActionAvailable())) {
-      print("after throw");
+      //print("after throw");
       actions.clear();
       turn = !turn;
       remainingThrows++;
@@ -455,7 +455,7 @@ class HomeController extends GetxController {
     for (String action in actions.toSet()) {
       if (validateAction(id, action)) res.add(action);
     }
-    print(res);
+    //print(res);
     return res;
   }
 
@@ -463,8 +463,7 @@ class HomeController extends GetxController {
     int val = actionValue[action]!;
     int pos1 = currentBoard.player1[id];
     int pos2 = currentBoard.player2[id];
-    // todo: fix index out of bound here: check if > 83 before
-    bool outOfBounds = turn ? pos1 + val > 84 : pos2 + val > 84;
+    bool outOfBounds = turn ? pos1 + val > 83 : pos2 + val > 83;
     if (outOfBounds) return false; // try this
     bool blocked = opponentInCastle(turn ? path1[pos1 + val] : path2[pos2 + val]);
     bool outside = action != "خال" && (turn ? pos1 == -1 : pos2 == -1);
@@ -500,6 +499,7 @@ class HomeController extends GetxController {
           pos2[i] = -1;
         }
       }
+      return;
     }
 
     for (int i = 0; i < 4; i++) {
@@ -541,7 +541,7 @@ class HomeController extends GetxController {
     List<StoneModel> res = [];
     for (StoneModel stone in stones.where((element) => element.player)) {
       List<int> pos1 = currentBoard.player1;
-      if (pos1[stone.id] == 83) continue;
+      if (pos1[stone.id] == 84) continue;
       bool sameRow = pos1[stone.id] == -1 ? r == 2 + stone.id : r == path1[pos1[stone.id]].r;
 
       bool sameColumn = pos1[stone.id] == -1 ? c == 2 : c == path1[pos1[stone.id]].c;
@@ -557,7 +557,7 @@ class HomeController extends GetxController {
     List<StoneModel> res = [];
     for (StoneModel stone in stones.where((element) => !element.player)) {
       List<int> pos2 = currentBoard.player2;
-      if (pos2[stone.id] == 83) continue;
+      if (pos2[stone.id] == 84) continue;
       bool sameRow = (pos2[stone.id] == -1 ? r == 13 + stone.id : r == path2[pos2[stone.id]].r);
 
       bool sameColumn = (pos2[stone.id] == -1 ? c == 17 : c == path2[pos2[stone.id]].c);
@@ -566,5 +566,4 @@ class HomeController extends GetxController {
     }
     return res;
   }
-  // todo: arrange stones when they reach kitchen (or make stones disappear an put numbers in the middle)
 }

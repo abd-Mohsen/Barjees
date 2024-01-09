@@ -15,4 +15,7 @@ class Board {
     required this.depth,
     this.parent,
   });
+
+  int get playerOneScore => player1.where((element) => element == 83).length;
+  int get playerTwoScore => player2.where((element) => element == 83).length;
 }
