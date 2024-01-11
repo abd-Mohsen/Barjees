@@ -82,7 +82,7 @@ class ScoreBoard extends StatelessWidget {
                   child: MouseRegion(
                     cursor: hC.remainingThrows > 0 ? SystemMouseCursors.click : SystemMouseCursors.basic,
                     child: GestureDetector(
-                      onTap: () => hC.throwShells(),
+                      onTap: () => hC.throwShells(true),
                       child: Container(
                         decoration: BoxDecoration(
                           color: hC.remainingThrows > 0 ? Colors.redAccent : Colors.grey,

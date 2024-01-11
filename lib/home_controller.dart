@@ -82,9 +82,12 @@ class HomeController extends GetxController {
 
   // is player1 turn
   bool turn = true;
+  bool computer = true;
+
+  // actions generated from throwing in the current turn
+  List<String> actions = [];
 
   // path that player1 stones take to reach kitchen
-
   final List<Position> path1 = [
     Position(9, 7),
     Position(9, 6),
@@ -313,8 +316,6 @@ class HomeController extends GetxController {
     Position(10, 8),
   };
 
-  List<String> actions = [];
-
   int remainingThrows = 1;
 
   //just a test, don't mind it
@@ -340,7 +341,7 @@ class HomeController extends GetxController {
     update();
   }
 
-  void throwShells() {
+  void throwShells(bool flag) async {
     if (remainingThrows == 0) return;
     int res = randomWithProbability();
     List<Widget> shells = [];
@@ -390,10 +391,10 @@ class HomeController extends GetxController {
     remainingThrows--;
     // or if there is no valid action for all player's stones
     if (remainingThrows == 0 && (actions.isEmpty || noActionAvailable())) {
-      //print("after throw");
       actions.clear();
       turn = !turn;
       remainingThrows++;
+      if (flag) await letPcPlay();
     }
     update();
     Get.showSnackbar(
@@ -435,7 +436,7 @@ class HomeController extends GetxController {
     }
   }
 
-  void doAction(int id, String action) {
+  void doAction(int id, String action) async {
     if (remainingThrows > 0 || !validateAction(id, action)) return;
 
     turn ? currentBoard.player1[id] += actionValue[action]! : currentBoard.player2[id] += actionValue[action]!;
@@ -446,6 +447,7 @@ class HomeController extends GetxController {
       turn = !turn;
       remainingThrows++;
       actions.clear();
+      //await letPcPlay();
     }
     update();
   }
@@ -565,5 +567,18 @@ class HomeController extends GetxController {
       if (sameRow && sameColumn) res.add(stone);
     }
     return res;
+  }
+
+  Future<void> letPcPlay() async {
+    if (!computer || turn) return;
+    while (remainingThrows > 0) {
+      throwShells(false);
+    }
+    for (String action in actions) {
+      for (int i = 0; i < 4; i++) {
+        await Future.delayed(const Duration(seconds: 2));
+        doAction(i, action);
+      }
+    }
   }
 }

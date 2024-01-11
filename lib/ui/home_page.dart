@@ -199,9 +199,9 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
-              const ScoreBoard(
+              ScoreBoard(
                 title: "اللّاعب 2",
-                iconData: Icons.computer,
+                iconData: con.computer ? Icons.computer : Icons.person,
                 player: false,
               ),
             ],
