@@ -41,7 +41,7 @@ class Stone extends StatelessWidget {
                         itemBuilder: (context, i) => ListTile(
                           onTap: () async {
                             Get.back();
-                            await hC.doAction(stone.id, hC.showActions(stone.id)[i], true);
+                            await hC.doAction(stone.id, hC.showActions(stone.id)[i]);
                           },
                           title: Center(
                             child: Text(

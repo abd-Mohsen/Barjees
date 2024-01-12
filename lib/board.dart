@@ -4,16 +4,12 @@ import 'package:collection/collection.dart';
 class Board {
   final List<int> player1;
   final List<int> player2;
-  final int cost;
-  final int heuristic;
   final int depth;
   final Board? parent;
 
   Board({
     required this.player1,
     required this.player2,
-    required this.cost,
-    required this.heuristic,
     required this.depth,
     this.parent,
   });
@@ -24,10 +20,21 @@ class Board {
     return oneWon || twoWon;
   }
 
-  List<Board> generateChildren() {
+  List<Board> getNextStates() {
     List<Board> children = [];
     //
     return children;
+  }
+
+  Board getNextState(int val, int id, bool turn) {
+    List<int> copy = turn ? List.from(player1) : List.from(player2);
+    copy[id] += val;
+    return Board(
+      player1: turn ? copy : player1,
+      player2: turn ? player2 : copy,
+      depth: depth + 1,
+      parent: this,
+    );
   }
 
   int evaluate() {

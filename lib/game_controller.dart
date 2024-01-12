@@ -56,9 +56,7 @@ class GameController extends GetxController {
     currentBoard = Board(
       player1: List.from(p1),
       player2: List.from(p2),
-      cost: 1,
       depth: 0,
-      heuristic: 0,
     );
     List<StoneModel> stones1 = List.generate(
       4,
@@ -82,7 +80,7 @@ class GameController extends GetxController {
 
   // is player1 turn
   bool turn = true;
-  bool computer = true;
+  bool computer = false;
 
   // actions generated from throwing in the current turn
   List<String> actions = [];
@@ -332,9 +330,7 @@ class GameController extends GetxController {
     currentBoard = Board(
       player1: List.from(p1),
       player2: List.from(p2),
-      cost: 1,
       depth: 0,
-      heuristic: 0,
     );
     update();
   }
@@ -403,7 +399,7 @@ class GameController extends GetxController {
         ),
       ),
     );
-    if (turn) await switchTurn();
+    if (turn || (!turn && !computer)) await switchTurn();
     update();
   }
 
@@ -428,15 +424,34 @@ class GameController extends GetxController {
     }
   }
 
-  Future<void> doAction(int id, String action, bool flag) async {
+  Future<void> doAction(int id, String action) async {
     if (remainingThrows > 0 || !validateAction(id, action)) return;
 
-    turn ? currentBoard.player1[id] += actionValue[action]! : currentBoard.player2[id] += actionValue[action]!;
+    //turn ? currentBoard.player1[id] += actionValue[action]! : currentBoard.player2[id] += actionValue[action]!;
+    currentBoard = currentBoard.getNextState(actionValue[action]!, id, turn);
     actions.remove(action);
     eliminate(id); // pass the id of the eliminator
 
-    if (turn) await switchTurn();
+    if (turn || (!turn && !computer)) await switchTurn();
     update();
+  }
+
+  Future<void> doActionPC(int id, String action) async {
+    if (remainingThrows > 0 || !validateAction(id, action)) return;
+
+    //turn ? currentBoard.player1[id] += actionValue[action]! : currentBoard.player2[id] += actionValue[action]!;
+    currentBoard = currentBoard.getNextState(actionValue[action]!, id, turn);
+    actions.remove(action);
+    eliminate(id); // pass the id of the eliminator
+
+    if (turn || (!turn && !computer)) await switchTurn();
+    update();
+  }
+
+  List<Board> getNextStates(Board state) {
+    List<Board> children = [];
+    //
+    return children;
   }
 
   List<String> showActions(int id) {
@@ -504,7 +519,7 @@ class GameController extends GetxController {
       actions.clear();
       turn ? turn = false : turn = true;
       remainingThrows++;
-      await Future.delayed(const Duration(milliseconds: 400));
+      await Future.delayed(const Duration(milliseconds: 200));
       if (!turn) await letPcPlay();
     }
   }
@@ -568,11 +583,7 @@ class GameController extends GetxController {
   Future<void> letPcPlay() async {
     if (!computer) return;
     //if (turn) return;
-    print(turn);
     while (remainingThrows > 0) {
-      // actions.add("pc");
-      // remainingThrows--;
-      //update();
       await throwShells();
       await Future.delayed(const Duration(milliseconds: 1000));
     }
@@ -582,7 +593,7 @@ class GameController extends GetxController {
       for (String action in copy) {
         if (validateAction(i, action)) {
           await Future.delayed(const Duration(seconds: 1));
-          doAction(i, action, false);
+          doAction(i, action);
           update();
           //todo: store state
         }
@@ -600,14 +611,14 @@ class GameController extends GetxController {
 
     if (isMax) {
       int maxEval = -9999;
-      for (Board child in board.generateChildren()) {
+      for (Board child in board.getNextStates()) {
         int eval = minimax(child, depth - 1, false);
         maxEval = max(maxEval, eval);
       }
       return maxEval;
     } else {
       int minEval = 9999;
-      for (Board child in board.generateChildren()) {
+      for (Board child in board.getNextStates()) {
         int eval = minimax(child, depth - 1, true);
         minEval = min(minEval, eval);
       }
@@ -619,7 +630,7 @@ class GameController extends GetxController {
     int bestEval = -9999;
     Board? bestState;
 
-    for (Board child in board.generateChildren()) {
+    for (Board child in board.getNextStates()) {
       int eval = minimax(child, depth - 1, false);
       if (eval > bestEval) {
         bestEval = eval;
