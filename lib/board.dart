@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+
 /// represents the state
 class Board {
   final List<int> player1;
@@ -16,6 +18,27 @@ class Board {
     this.parent,
   });
 
-  int get playerOneScore => player1.where((element) => element == 83).length;
-  int get playerTwoScore => player2.where((element) => element == 83).length;
+  bool isTerminal() {
+    bool oneWon = player1.every((progress) => progress == 83);
+    bool twoWon = player2.every((progress) => progress == 83);
+    return oneWon || twoWon;
+  }
+
+  int evaluate() {
+    bool oneWon = player1.every((progress) => progress == 83);
+    bool twoWon = player2.every((progress) => progress == 83);
+
+    if (oneWon) return 1000;
+    if (twoWon) return -1000;
+
+    // check if you can land on x
+    // check if you can eliminate
+    // check if you can enter a save zone
+    // check if the stone has high progress
+    int player1Score = 0, player2Score = 0;
+    player1Score += player1.sum.abs();
+    player2Score += player2.sum.abs();
+
+    return player1Score - player2Score;
+  }
 }

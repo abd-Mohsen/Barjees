@@ -1,4 +1,4 @@
-import 'package:algo_project/home_controller.dart';
+import 'package:algo_project/game_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,10 +18,10 @@ class ScoreBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    HomeController hC = Get.find();
+    GameController gC = Get.find();
 
-    return GetBuilder<HomeController>(builder: (con) {
-      bool active = hC.turn == player;
+    return GetBuilder<GameController>(builder: (con) {
+      bool active = gC.turn == player;
       return Container(
         margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         width: 120,
@@ -60,10 +60,10 @@ class ScoreBoard extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: active ? hC.actions.length : 0,
+                itemCount: active ? gC.actions.length : 0,
                 itemBuilder: (context, i) => Center(
                   child: Text(
-                    hC.actions[i],
+                    gC.actions[i],
                     style: TextStyle(
                       fontSize: 18,
                       letterSpacing: 0,
@@ -78,14 +78,14 @@ class ScoreBoard extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Tooltip(
-                  message: hC.remainingThrows > 0 ? "throw" : "do actions first",
+                  message: gC.remainingThrows > 0 ? "throw" : "do actions first",
                   child: MouseRegion(
-                    cursor: hC.remainingThrows > 0 ? SystemMouseCursors.click : SystemMouseCursors.basic,
+                    cursor: gC.remainingThrows > 0 ? SystemMouseCursors.click : SystemMouseCursors.basic,
                     child: GestureDetector(
-                      onTap: () => hC.throwShells(true),
+                      onTap: () async => await gC.throwShells(),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: hC.remainingThrows > 0 ? Colors.redAccent : Colors.grey,
+                          color: gC.remainingThrows > 0 ? Colors.redAccent : Colors.grey,
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: Padding(

@@ -8,14 +8,14 @@ import 'package:flutter/material.dart';
 import 'board.dart';
 import 'constants.dart';
 
-class HomeController extends GetxController {
+class GameController extends GetxController {
   // 19 * 19 grid
   // a for regular cell
   // x for x cell
   // k for kitchen cells
   // / for ...
 
-  List<List<String>> initCells = [
+  List<List<String>> cells = [
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'x', 'a', 'x', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
@@ -321,9 +321,7 @@ class HomeController extends GetxController {
   //just a test, don't mind it
   void drawPath() async {
     for (Position pos in kitchen) {
-      initCells[pos.r][pos.c] == ' ' || initCells[pos.r][pos.c] == 'k'
-          ? initCells[pos.r][pos.c] = 'a'
-          : initCells[pos.r][pos.c] = ' ';
+      cells[pos.r][pos.c] == ' ' || cells[pos.r][pos.c] == 'k' ? cells[pos.r][pos.c] = 'a' : cells[pos.r][pos.c] = ' ';
       print("${pos.r},${pos.c}");
       await Future.delayed(const Duration(milliseconds: 200));
       update();
@@ -341,7 +339,7 @@ class HomeController extends GetxController {
     update();
   }
 
-  void throwShells(bool flag) async {
+  Future<void> throwShells() async {
     if (remainingThrows == 0) return;
     int res = randomWithProbability();
     List<Widget> shells = [];
@@ -389,17 +387,9 @@ class HomeController extends GetxController {
         print("wtf");
     }
     remainingThrows--;
-    // or if there is no valid action for all player's stones
-    if (remainingThrows == 0 && (actions.isEmpty || noActionAvailable())) {
-      actions.clear();
-      turn = !turn;
-      remainingThrows++;
-      if (flag) await letPcPlay();
-    }
-    update();
     Get.showSnackbar(
       GetSnackBar(
-        duration: const Duration(seconds: 1),
+        duration: const Duration(milliseconds: 800),
         titleText: Text(
           throwName[res]!,
           style: TextStyle(
@@ -413,6 +403,8 @@ class HomeController extends GetxController {
         ),
       ),
     );
+    await switchTurn();
+    update();
   }
 
   int randomWithProbability() {
@@ -436,19 +428,14 @@ class HomeController extends GetxController {
     }
   }
 
-  void doAction(int id, String action) async {
+  Future<void> doAction(int id, String action, bool flag) async {
     if (remainingThrows > 0 || !validateAction(id, action)) return;
 
     turn ? currentBoard.player1[id] += actionValue[action]! : currentBoard.player2[id] += actionValue[action]!;
     actions.remove(action);
     eliminate(id); // pass the id of the eliminator
 
-    if (actions.isEmpty || noActionAvailable()) {
-      turn = !turn;
-      remainingThrows++;
-      actions.clear();
-      //await letPcPlay();
-    }
+    await switchTurn();
     update();
   }
 
@@ -462,6 +449,7 @@ class HomeController extends GetxController {
   }
 
   bool validateAction(int id, String action) {
+    if (!actionValue.containsKey(action)) return false;
     int val = actionValue[action]!;
     int pos1 = currentBoard.player1[id];
     int pos2 = currentBoard.player2[id];
@@ -511,12 +499,20 @@ class HomeController extends GetxController {
     }
   }
 
+  Future<void> switchTurn() async {
+    if (remainingThrows == 0 && (actions.isEmpty || noActionAvailable())) {
+      actions.clear();
+      turn ? turn = false : turn = true;
+      remainingThrows++;
+      await Future.delayed(const Duration(milliseconds: 400));
+      if (!turn) await letPcPlay();
+    }
+  }
+
   bool noActionAvailable() {
     for (String action in actions) {
       for (int i = 0; i < 4; i++) {
-        if (validateAction(i, action)) {
-          return false;
-        }
+        if (validateAction(i, action)) return false;
       }
     }
     return true;
@@ -524,7 +520,7 @@ class HomeController extends GetxController {
 
   // print current state
   void printBoard() {
-    for (List<String> row in initCells) {
+    for (List<String> row in cells) {
       String s = "";
       for (String cell in row) {
         // print stone instead if exists in current position
@@ -570,15 +566,25 @@ class HomeController extends GetxController {
   }
 
   Future<void> letPcPlay() async {
-    if (!computer || turn) return;
+    if (!computer) return;
+    //if (turn) return;
+    print(turn);
     while (remainingThrows > 0) {
-      throwShells(false);
+      actions.add("pc");
+      remainingThrows--;
+      update();
+      await Future.delayed(const Duration(milliseconds: 1000));
     }
-    for (String action in actions) {
-      for (int i = 0; i < 4; i++) {
-        await Future.delayed(const Duration(seconds: 2));
-        doAction(i, action);
-      }
-    }
+    //await Future.delayed(const Duration(seconds: 2));
+    // for (int i = 0; i < 4; i++) {
+    //   List<String> copy = List.from(actions);
+    //   for (String action in copy) {
+    //     await Future.delayed(const Duration(seconds: 2));
+    //     doAction(i, action, false);
+    //   }
+    // }
+    await switchTurn();
+    print("pc played");
+    update();
   }
 }

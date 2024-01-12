@@ -4,17 +4,17 @@ import 'package:algo_project/ui/stone.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../home_controller.dart';
+import '../game_controller.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    HomeController hC = Get.put(HomeController());
+    GameController gC = Get.put(GameController());
 
     Widget drawCell(int row, int column) {
-      String type = hC.initCells[row][column];
+      String type = gC.cells[row][column];
       if (type == 'a' || type == '/') {
         return Container(
           width: 30,
@@ -22,7 +22,7 @@ class HomePage extends StatelessWidget {
           alignment: Alignment.center,
           //margin: const EdgeInsets.all(1),
           decoration: BoxDecoration(
-            //color: cellColor(hC.currentBoard.cells[i][j]),
+            //color: cellColor(gC.currentBoard.cells[i][j]),
             //borderRadius: BorderRadius.circular(2),
             border: Border.all(
               color: kMainColor,
@@ -38,7 +38,7 @@ class HomePage extends StatelessWidget {
           alignment: Alignment.center,
           //margin: const EdgeInsets.all(1),
           decoration: BoxDecoration(
-            //color: cellColor(hC.currentBoard.cells[i][j]),
+            //color: cellColor(gC.currentBoard.cells[i][j]),
             //borderRadius: BorderRadius.circular(2),
             border: Border.all(
               color: kBoardColor,
@@ -56,7 +56,7 @@ class HomePage extends StatelessWidget {
           alignment: Alignment.center,
           //margin: const EdgeInsets.all(1),
           decoration: BoxDecoration(
-            //color: cellColor(hC.currentBoard.cells[i][j]),
+            //color: cellColor(gC.currentBoard.cells[i][j]),
             borderRadius: BorderRadius.circular(2),
             border: Border.all(
               color: kMainColor,
@@ -79,14 +79,14 @@ class HomePage extends StatelessWidget {
     }
 
     Widget buildGameBody() {
-      int rowsCount = hC.initCells.length;
+      int rowsCount = gC.cells.length;
       return GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: rowsCount,
         ),
         itemCount: (rowsCount) * (rowsCount),
         itemBuilder: (context, index) {
-          int gridStateLength = hC.initCells.length;
+          int gridStateLength = gC.cells.length;
           int r, c = 0;
           r = (index / gridStateLength).floor();
           c = (index % gridStateLength);
@@ -105,17 +105,17 @@ class HomePage extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            ...hC.getStones1(r, c).take(2).map((stone) => Stone(stone: stone)).toList(),
-                            ...hC.getStones2(r, c).take(2).map((stone) => Stone(stone: stone)).toList(),
+                            ...gC.getStones1(r, c).take(2).map((stone) => Stone(stone: stone)).toList(),
+                            ...gC.getStones2(r, c).take(2).map((stone) => Stone(stone: stone)).toList(),
                           ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            if (hC.getStones1(r, c).length > 2)
-                              ...hC.getStones1(r, c).sublist(2).map((stone) => Stone(stone: stone)).toList(),
-                            if (hC.getStones2(r, c).length > 2)
-                              ...hC.getStones2(r, c).sublist(2).map((stone) => Stone(stone: stone)).toList(),
+                            if (gC.getStones1(r, c).length > 2)
+                              ...gC.getStones1(r, c).sublist(2).map((stone) => Stone(stone: stone)).toList(),
+                            if (gC.getStones2(r, c).length > 2)
+                              ...gC.getStones2(r, c).sublist(2).map((stone) => Stone(stone: stone)).toList(),
                           ],
                         ),
                       ],
@@ -149,7 +149,7 @@ class HomePage extends StatelessWidget {
           IconButton(
             tooltip: "restart",
             onPressed: () {
-              hC.restartGame();
+              gC.restartGame();
             },
             icon: const Icon(Icons.refresh),
           ),
@@ -165,7 +165,7 @@ class HomePage extends StatelessWidget {
         ],
       ),
       backgroundColor: Color(0xFF121212),
-      body: GetBuilder<HomeController>(
+      body: GetBuilder<GameController>(
         builder: (con) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

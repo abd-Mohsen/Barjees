@@ -1,5 +1,5 @@
 import 'package:algo_project/constants.dart';
-import 'package:algo_project/home_controller.dart';
+import 'package:algo_project/game_controller.dart';
 import 'package:algo_project/stone_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,7 +11,7 @@ class Stone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    HomeController hC = Get.find();
+    GameController hC = Get.find();
     //cursor: stone.player == hC.turn ? SystemMouseCursors.click : SystemMouseCursors.basic,
     return InkWell(
       onTap: stone.player != hC.turn
@@ -39,9 +39,9 @@ class Stone extends StatelessWidget {
                       child: ListView.builder(
                         itemCount: hC.showActions(stone.id).length,
                         itemBuilder: (context, i) => ListTile(
-                          onTap: () {
-                            hC.doAction(stone.id, hC.showActions(stone.id)[i]);
+                          onTap: () async {
                             Get.back();
+                            await hC.doAction(stone.id, hC.showActions(stone.id)[i], true);
                           },
                           title: Center(
                             child: Text(
