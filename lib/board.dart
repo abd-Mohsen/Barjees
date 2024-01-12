@@ -24,6 +24,12 @@ class Board {
     return oneWon || twoWon;
   }
 
+  List<Board> generateChildren() {
+    List<Board> children = [];
+    //
+    return children;
+  }
+
   int evaluate() {
     bool oneWon = player1.every((progress) => progress == 83);
     bool twoWon = player2.every((progress) => progress == 83);
@@ -31,13 +37,13 @@ class Board {
     if (oneWon) return 1000;
     if (twoWon) return -1000;
 
+    int player1Score = 0, player2Score = 0;
+    player1Score += player1.sum.abs();
+    player2Score += player2.sum.abs();
     // check if you can land on x
     // check if you can eliminate
     // check if you can enter a save zone
     // check if the stone has high progress
-    int player1Score = 0, player2Score = 0;
-    player1Score += player1.sum.abs();
-    player2Score += player2.sum.abs();
 
     return player1Score - player2Score;
   }

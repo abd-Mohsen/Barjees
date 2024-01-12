@@ -403,7 +403,7 @@ class GameController extends GetxController {
         ),
       ),
     );
-    await switchTurn();
+    if (turn) await switchTurn();
     update();
   }
 
@@ -435,7 +435,7 @@ class GameController extends GetxController {
     actions.remove(action);
     eliminate(id); // pass the id of the eliminator
 
-    await switchTurn();
+    if (turn) await switchTurn();
     update();
   }
 
@@ -570,21 +570,63 @@ class GameController extends GetxController {
     //if (turn) return;
     print(turn);
     while (remainingThrows > 0) {
-      actions.add("pc");
-      remainingThrows--;
-      update();
+      // actions.add("pc");
+      // remainingThrows--;
+      //update();
+      await throwShells();
       await Future.delayed(const Duration(milliseconds: 1000));
     }
-    //await Future.delayed(const Duration(seconds: 2));
-    // for (int i = 0; i < 4; i++) {
-    //   List<String> copy = List.from(actions);
-    //   for (String action in copy) {
-    //     await Future.delayed(const Duration(seconds: 2));
-    //     doAction(i, action, false);
-    //   }
-    // }
+    await Future.delayed(const Duration(seconds: 1));
+    for (int i = 0; i < 4; i++) {
+      List<String> copy = List.from(actions);
+      for (String action in copy) {
+        if (validateAction(i, action)) {
+          await Future.delayed(const Duration(seconds: 1));
+          doAction(i, action, false);
+          update();
+          //todo: store state
+        }
+      }
+    }
     await switchTurn();
     print("pc played");
     update();
+  }
+
+  int minimax(Board board, int depth, bool isMax) {
+    if (depth == 0 || board.isTerminal()) {
+      return board.evaluate();
+    }
+
+    if (isMax) {
+      int maxEval = -9999;
+      for (Board child in board.generateChildren()) {
+        int eval = minimax(child, depth - 1, false);
+        maxEval = max(maxEval, eval);
+      }
+      return maxEval;
+    } else {
+      int minEval = 9999;
+      for (Board child in board.generateChildren()) {
+        int eval = minimax(child, depth - 1, true);
+        minEval = min(minEval, eval);
+      }
+      return minEval;
+    }
+  }
+
+  Board findBestState(Board board, int depth) {
+    int bestEval = -9999;
+    Board? bestState;
+
+    for (Board child in board.generateChildren()) {
+      int eval = minimax(child, depth - 1, false);
+      if (eval > bestEval) {
+        bestEval = eval;
+        bestState = child;
+      }
+    }
+    if (bestState != null) currentBoard = bestState;
+    return bestState!;
   }
 }
