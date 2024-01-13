@@ -147,18 +147,9 @@ class HomePage extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            tooltip: "restart",
-            onPressed: () {
-              gC.restartGame();
-            },
-            icon: const Icon(Icons.refresh),
-          ),
-          IconButton(
             tooltip: "test path",
-            onPressed: () {
-              //hC.drawPath();
-              //hC.showActions(0);
-              //hC.test();
+            onPressed: () async {
+              await gC.getNextStates();
             },
             icon: const Icon(Icons.account_tree_sharp),
           ),

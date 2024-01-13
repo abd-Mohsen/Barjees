@@ -11,9 +11,8 @@ import 'constants.dart';
 class GameController extends GetxController {
   // 19 * 19 grid
   // a for regular cell
-  // x for x cell
+  // x for X cell
   // k for kitchen cells
-  // / for ...
 
   List<List<String>> cells = [
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
@@ -24,9 +23,9 @@ class GameController extends GetxController {
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-    ['a', 'a', 'x', 'a', 'a', 'a', 'a', 'a', 'k', 'k', 'k', 'a', 'a', 'a', 'a', 'a', 'x', 'a', '/'],
+    ['a', 'a', 'x', 'a', 'a', 'a', 'a', 'a', 'k', 'k', 'k', 'a', 'a', 'a', 'a', 'a', 'x', 'a', 'a'],
     ['a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'k', 'k', 'k', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'],
-    ['/', 'a', 'x', 'a', 'a', 'a', 'a', 'a', 'k', 'k', 'k', 'a', 'a', 'a', 'a', 'a', 'x', 'a', 'a'],
+    ['a', 'a', 'x', 'a', 'a', 'a', 'a', 'a', 'k', 'k', 'k', 'a', 'a', 'a', 'a', 'a', 'x', 'a', 'a'],
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
@@ -37,19 +36,6 @@ class GameController extends GetxController {
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
   ];
 
-  List<List<String>> deepCopyMatrix(List<List<String>> og) {
-    List<List<String>> copy = [];
-
-    for (List<String> row in og) {
-      List<String> temp = [];
-      for (String cell in row) {
-        temp.add(cell);
-      }
-      copy.add(temp);
-    }
-    return copy;
-  }
-
   late Board currentBoard;
   @override
   void onInit() {
@@ -58,20 +44,8 @@ class GameController extends GetxController {
       player2: List.from(p2),
       depth: 0,
     );
-    List<StoneModel> stones1 = List.generate(
-      4,
-      (i) => StoneModel(
-        id: i,
-        player: true,
-      ),
-    );
-    List<StoneModel> stones2 = List.generate(
-      4,
-      (i) => StoneModel(
-        id: i,
-        player: false,
-      ),
-    );
+    List<StoneModel> stones1 = List.generate(4, (i) => StoneModel(id: i, player: true));
+    List<StoneModel> stones2 = List.generate(4, (i) => StoneModel(id: i, player: false));
     stones = [...stones1, ...stones2];
     super.onInit();
   }
@@ -80,7 +54,7 @@ class GameController extends GetxController {
 
   // is player1 turn
   bool turn = true;
-  bool computer = false;
+  bool computer = true;
 
   // actions generated from throwing in the current turn
   List<String> actions = [];
@@ -380,7 +354,7 @@ class GameController extends GetxController {
         }
 
       default:
-        print("wtf");
+        actions.add("wtf");
     }
     remainingThrows--;
     Get.showSnackbar(
@@ -424,50 +398,33 @@ class GameController extends GetxController {
     }
   }
 
-  Future<void> doAction(int id, String action) async {
-    if (remainingThrows > 0 || !validateAction(id, action)) return;
+  Future<Board?> doAction(int id, String action) async {
+    if (remainingThrows > 0 || !validateAction(id, action, currentBoard)) return null;
 
     //turn ? currentBoard.player1[id] += actionValue[action]! : currentBoard.player2[id] += actionValue[action]!;
     currentBoard = currentBoard.getNextState(actionValue[action]!, id, turn);
     actions.remove(action);
-    eliminate(id); // pass the id of the eliminator
+    eliminate(id, currentBoard); // pass the id of the eliminator
 
     if (turn || (!turn && !computer)) await switchTurn();
     update();
-  }
-
-  Future<void> doActionPC(int id, String action) async {
-    if (remainingThrows > 0 || !validateAction(id, action)) return;
-
-    //turn ? currentBoard.player1[id] += actionValue[action]! : currentBoard.player2[id] += actionValue[action]!;
-    currentBoard = currentBoard.getNextState(actionValue[action]!, id, turn);
-    actions.remove(action);
-    eliminate(id); // pass the id of the eliminator
-
-    if (turn || (!turn && !computer)) await switchTurn();
-    update();
-  }
-
-  List<Board> getNextStates(Board state) {
-    List<Board> children = [];
-    //
-    return children;
+    return currentBoard;
   }
 
   List<String> showActions(int id) {
     List<String> res = [];
     for (String action in actions.toSet()) {
-      if (validateAction(id, action)) res.add(action);
+      if (validateAction(id, action, currentBoard)) res.add(action);
     }
     //print(res);
     return res;
   }
 
-  bool validateAction(int id, String action) {
+  bool validateAction(int id, String action, Board state) {
     if (!actionValue.containsKey(action)) return false;
     int val = actionValue[action]!;
-    int pos1 = currentBoard.player1[id];
-    int pos2 = currentBoard.player2[id];
+    int pos1 = state.player1[id];
+    int pos2 = state.player2[id];
     bool outOfBounds = turn ? pos1 + val > 83 : pos2 + val > 83;
     if (outOfBounds) return false; // try this
     bool blocked = opponentInCastle(turn ? path1[pos1 + val] : path2[pos2 + val]);
@@ -492,9 +449,9 @@ class GameController extends GetxController {
     return false;
   }
 
-  void eliminate(int id) {
-    List<int> pos1 = currentBoard.player1;
-    List<int> pos2 = currentBoard.player2;
+  void eliminate(int id, Board state) {
+    List<int> pos1 = state.player1;
+    List<int> pos2 = state.player2;
     // check if those two lists are passed by val or ref
     Position pos = turn ? path1[pos1[id]] : path2[pos2[id]];
     if (opponentInCastle(pos)) return;
@@ -515,19 +472,20 @@ class GameController extends GetxController {
   }
 
   Future<void> switchTurn() async {
-    if (remainingThrows == 0 && (actions.isEmpty || noActionAvailable())) {
+    update();
+    if (remainingThrows == 0 && (actions.isEmpty || noActionAvailable(currentBoard))) {
       actions.clear();
       turn ? turn = false : turn = true;
       remainingThrows++;
-      await Future.delayed(const Duration(milliseconds: 200));
+      await Future.delayed(const Duration(milliseconds: 800));
       if (!turn) await letPcPlay();
     }
   }
 
-  bool noActionAvailable() {
+  bool noActionAvailable(Board state) {
     for (String action in actions) {
       for (int i = 0; i < 4; i++) {
-        if (validateAction(i, action)) return false;
+        if (validateAction(i, action, state)) return false;
       }
     }
     return true;
@@ -573,7 +531,7 @@ class GameController extends GetxController {
       if (pos2[stone.id] == 84) continue;
       bool sameRow = (pos2[stone.id] == -1 ? r == 13 + stone.id : r == path2[pos2[stone.id]].r);
 
-      bool sameColumn = (pos2[stone.id] == -1 ? c == 17 : c == path2[pos2[stone.id]].c);
+      bool sameColumn = (pos2[stone.id] == -1 ? c == 16 : c == path2[pos2[stone.id]].c);
 
       if (sameRow && sameColumn) res.add(stone);
     }
@@ -585,59 +543,88 @@ class GameController extends GetxController {
     //if (turn) return;
     while (remainingThrows > 0) {
       await throwShells();
-      await Future.delayed(const Duration(milliseconds: 1000));
+      await Future.delayed(const Duration(milliseconds: 1200));
     }
-    await Future.delayed(const Duration(seconds: 1));
-    for (int i = 0; i < 4; i++) {
-      List<String> copy = List.from(actions);
-      for (String action in copy) {
-        if (validateAction(i, action)) {
-          await Future.delayed(const Duration(seconds: 1));
-          doAction(i, action);
-          update();
-          //todo: store state
-        }
-      }
-    }
+    await Future.delayed(const Duration(milliseconds: 800));
+    Board? newState = await findBestState(currentBoard, 2);
+    actions.clear();
+    if (newState != null) currentBoard = newState;
     await switchTurn();
     print("pc played");
     update();
   }
 
-  int minimax(Board board, int depth, bool isMax) {
+  Future<int> minimax(Board board, int depth, bool isMax) async {
     if (depth == 0 || board.isTerminal()) {
       return board.evaluate();
     }
-
+    var nextStates = await getNextStates();
     if (isMax) {
       int maxEval = -9999;
-      for (Board child in board.getNextStates()) {
-        int eval = minimax(child, depth - 1, false);
+      for (Board child in nextStates) {
+        int eval = await minimax(child, depth - 1, false);
         maxEval = max(maxEval, eval);
       }
       return maxEval;
     } else {
       int minEval = 9999;
-      for (Board child in board.getNextStates()) {
-        int eval = minimax(child, depth - 1, true);
+      for (Board child in nextStates) {
+        int eval = await minimax(child, depth - 1, true);
         minEval = min(minEval, eval);
       }
       return minEval;
     }
   }
 
-  Board findBestState(Board board, int depth) {
+  Future<Board?> findBestState(Board board, int depth) async {
     int bestEval = -9999;
     Board? bestState;
-
-    for (Board child in board.getNextStates()) {
-      int eval = minimax(child, depth - 1, false);
+    var states = await getNextStates();
+    for (Board child in states) {
+      //int eval = minimax(child, depth - 1, false);
+      int eval = child.evaluate();
       if (eval > bestEval) {
         bestEval = eval;
         bestState = child;
       }
     }
-    if (bestState != null) currentBoard = bestState;
-    return bestState!;
+    if (bestState != null)
+      currentBoard = bestState;
+    else
+      print("no better state");
+    return null;
+  }
+
+  Future<Board?> doActionPc(int id, String action, Board state) async {
+    if (remainingThrows > 0 || !validateAction(id, action, state)) return null;
+
+    state = state.getNextState(actionValue[action]!, id, turn);
+    eliminate(id, state);
+    print("${state.player2} ${state.player1}");
+    return state;
+  }
+
+  Future<List<Board>> getNextStates() async {
+    List<Board> res = [];
+    List<String> copy = List.from(actions);
+
+    Future<void> generate(int i, Board state) async {
+      print(i);
+      if (i == copy.length || noActionAvailable(state)) {
+        res.add(state);
+        return;
+      }
+      for (int stone = 0; stone < 4; stone++) {
+        print("in");
+        Board? newState = await doActionPc(stone, copy[i], state);
+        if (newState != null) generate(i + 1, newState);
+      }
+    }
+
+    await generate(0, currentBoard);
+
+    print(res);
+
+    return res;
   }
 }
