@@ -74,7 +74,7 @@ class ScoreBoard extends StatelessWidget {
               ),
             ),
             Visibility(
-              visible: active,
+              visible: active && !(gC.computer && !gC.turn),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Tooltip(

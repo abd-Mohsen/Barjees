@@ -68,7 +68,9 @@ class Stone extends StatelessWidget {
       child: Icon(
         Icons.circle,
         size: 13.5,
-        color: stone.player ? Colors.indigoAccent : Colors.white,
+        color: stone.player
+            ? (hC.getPositions()[stone.id] > 74 ? Colors.indigoAccent.withOpacity(0.7) : Colors.indigoAccent)
+            : (hC.getPositions()[stone.id] > 74 ? Colors.white.withOpacity(0.7) : Colors.white),
       ),
     );
   }

@@ -149,7 +149,8 @@ class HomePage extends StatelessWidget {
           IconButton(
             tooltip: "test path",
             onPressed: () async {
-              await gC.getNextStates();
+              //await gC.getNextStates();
+              gC.tst();
             },
             icon: const Icon(Icons.account_tree_sharp),
           ),

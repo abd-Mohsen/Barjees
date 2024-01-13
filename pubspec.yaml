@@ -18,6 +18,7 @@ dependencies:
   #stack: ^0.2.1
   collection: ^1.17.2
   popover: ^0.2.8+2
+  trotter: ^2.2.0
 
 dev_dependencies:
   flutter_test:

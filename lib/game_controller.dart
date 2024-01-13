@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:algo_project/position.dart';
 import 'package:algo_project/stone_model.dart';
 import 'package:algo_project/ui/shell.dart';
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'board.dart';
@@ -320,12 +321,12 @@ class GameController extends GetxController {
     switch (res) {
       case 0:
         {
-          remainingThrows++;
+          if (remainingThrows < 4) remainingThrows++;
           actions.add("شكة"); // move 6
         }
       case 1:
         {
-          remainingThrows++;
+          if (remainingThrows < 4) remainingThrows++;
           actions.add("خال");
           actions.add("دست"); // move 10
         }
@@ -343,13 +344,13 @@ class GameController extends GetxController {
         }
       case 5:
         {
-          remainingThrows++;
+          if (remainingThrows < 4) remainingThrows++;
           actions.add("خال");
           actions.add("بنج"); // move 24
         }
       case 6:
         {
-          remainingThrows++;
+          if (remainingThrows < 6) remainingThrows++;
           actions.add("بارا"); // move 12
         }
 
@@ -478,7 +479,7 @@ class GameController extends GetxController {
       turn ? turn = false : turn = true;
       remainingThrows++;
       await Future.delayed(const Duration(milliseconds: 800));
-      if (!turn) await letPcPlay();
+      if (!turn) await pc();
     }
   }
 
@@ -538,7 +539,8 @@ class GameController extends GetxController {
     return res;
   }
 
-  Future<void> letPcPlay() async {
+  Future<void> pc() async {
+    await Future.delayed(const Duration(milliseconds: 400));
     if (!computer) return;
     //if (turn) return;
     while (remainingThrows > 0) {
@@ -556,7 +558,7 @@ class GameController extends GetxController {
 
   Future<int> minimax(Board board, int depth, bool isMax) async {
     if (depth == 0 || board.isTerminal()) {
-      return board.evaluate();
+      return evaluate(board);
     }
     var nextStates = await getNextStates();
     if (isMax) {
@@ -582,16 +584,17 @@ class GameController extends GetxController {
     var states = await getNextStates();
     for (Board child in states) {
       //int eval = minimax(child, depth - 1, false);
-      int eval = child.evaluate();
+      int eval = evaluate(child);
       if (eval > bestEval) {
         bestEval = eval;
         bestState = child;
       }
     }
-    if (bestState != null)
-      currentBoard = bestState;
-    else
+    if (bestState != null) {
+      return bestState;
+    } else {
       print("no better state");
+    }
     return null;
   }
 
@@ -605,10 +608,12 @@ class GameController extends GetxController {
   }
 
   Future<List<Board>> getNextStates() async {
-    List<Board> res = [];
+    Set<Board> res = {};
     List<String> copy = List.from(actions);
+    //List<String> copy = ["تلاتة", "اربعة", "خال", "بنج", "دست", "خال"];
+    List<List<String>> permutations = getPermutations(copy);
 
-    Future<void> generate(int i, Board state) async {
+    Future<void> generate(int i, Board state, List<String> perm) async {
       print(i);
       if (i == copy.length || noActionAvailable(state)) {
         res.add(state);
@@ -616,15 +621,91 @@ class GameController extends GetxController {
       }
       for (int stone = 0; stone < 4; stone++) {
         print("in");
-        Board? newState = await doActionPc(stone, copy[i], state);
-        if (newState != null) generate(i + 1, newState);
+        Board? newState = await doActionPc(stone, perm[i], state);
+        if (newState != null) generate(i + 1, newState, perm);
       }
     }
 
-    await generate(0, currentBoard);
+    int limit = permutations.length < 720 ? permutations.length : 720;
+    for (int i = 0; i < limit; i++) {
+      await generate(0, currentBoard, permutations[i]);
+    }
 
     print(res);
 
-    return res;
+    return res.toList();
   }
+
+  void tst() {
+    //List<String> list = ["تلاتة", "اربعة", "خال", "بنج", "دست", "خال"];
+    //Permutations<String> permutations = Permutations(actions.length, actions);
+    getNextStates();
+  }
+
+  List<List<String>> getPermutations(List<String> list) {
+    List<List<String>> permutations = [];
+    _generatePermutations(list, 0, permutations);
+    return permutations;
+  }
+
+  void _generatePermutations(List<String> list, int start, List<List<String>> permutations) {
+    if (start == list.length - 1) {
+      permutations.add(List.from(list));
+      return;
+    }
+
+    for (int i = start; i < list.length; i++) {
+      if (_shouldSwap(list, start, i)) {
+        _swap(list, start, i);
+        _generatePermutations(list, start + 1, permutations);
+        _swap(list, start, i);
+      }
+    }
+  }
+
+  bool _shouldSwap(List<String> list, int start, int current) {
+    for (int i = start; i < current; i++) {
+      if (list[i] == list[current]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void _swap(List<String> list, int i, int j) {
+    String temp = list[i];
+    list[i] = list[j];
+    list[j] = temp;
+  }
+
+  int evaluate(Board state) {
+    bool oneWon = state.player1.every((progress) => progress == 83);
+    bool twoWon = state.player2.every((progress) => progress == 83);
+
+    if (oneWon) return -1000;
+    if (twoWon) return 1000;
+
+    int player1Score = 0, player2Score = 0;
+    player1Score += state.player1.sum.abs();
+    player2Score += state.player2.sum.abs();
+    // check if you can land on x
+    // check if the stone has high progress
+
+    // check if it has less -1 (to insure that he use خال for inserting stones & that you can kick out stones)
+    for (int progress in state.player1) {
+      if (progress != -1) player1Score += 40;
+      if (progress == 83) player1Score += 30;
+      if (progress != -1 && castle.contains(path1[progress])) player1Score += 25;
+    }
+
+    for (int progress in state.player2) {
+      if (progress != -1) player2Score += 40;
+      if (progress == 83) player2Score += 30;
+      if (progress != -1 && castle.contains(path2[progress])) player2Score += 25;
+    }
+
+    return player2Score - player1Score;
+  }
+  // todo: make three difficulties
+// todo: do report
 }
