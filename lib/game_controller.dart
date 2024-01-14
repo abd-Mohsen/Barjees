@@ -293,23 +293,23 @@ class GameController extends GetxController {
   int throwCounter = 0;
 
   //just a test, don't mind it
-  void drawPath() async {
-    for (Position pos in kitchen) {
-      cells[pos.r][pos.c] == ' ' || cells[pos.r][pos.c] == 'k' ? cells[pos.r][pos.c] = 'a' : cells[pos.r][pos.c] = ' ';
-      print("${pos.r},${pos.c}");
-      await Future.delayed(const Duration(milliseconds: 200));
-      update();
-    }
-  }
+  // void drawPath() async {
+  //   for (Position pos in kitchen) {
+  //     cells[pos.r][pos.c] == ' ' || cells[pos.r][pos.c] == 'k' ? cells[pos.r][pos.c] = 'a' : cells[pos.r][pos.c] = ' ';
+  //     print("${pos.r},${pos.c}");
+  //     await Future.delayed(const Duration(milliseconds: 200));
+  //     update();
+  //   }
+  // }
 
-  void restartGame() {
-    currentBoard = Board(
-      player1: List.from(p1),
-      player2: List.from(p2),
-      depth: 0,
-    );
-    update();
-  }
+  // void restartGame() {
+  //   currentBoard = Board(
+  //     player1: List.from(p1),
+  //     player2: List.from(p2),
+  //     depth: 0,
+  //   );
+  //   update();
+  // }
 
   Future<void> throwShells() async {
     if (remainingThrows == 0 || throwCounter > 3) return;
@@ -347,7 +347,7 @@ class GameController extends GetxController {
         {
           if (throwCounter < 4) remainingThrows++;
           actions.add("خال");
-          actions.add("بنج"); // move 24
+          actions.add("بنج"); // move 25
         }
       case 6:
         {
@@ -362,7 +362,7 @@ class GameController extends GetxController {
     throwCounter++;
     Get.showSnackbar(
       GetSnackBar(
-        duration: const Duration(milliseconds: 800),
+        duration: const Duration(milliseconds: 1200),
         titleText: Text(
           throwName[res]!,
           style: TextStyle(
@@ -600,8 +600,8 @@ class GameController extends GetxController {
     Board? bestState;
     List<Board> states = await getNextStates(board);
     for (Board child in states) {
-      int eval = await minimax(child, depth - 1, -99999, 99999, true);
-      //int eval = evaluate(child);
+      //int eval = await minimax(child, depth - 1, -99999, 99999, true);
+      int eval = evaluate(child);
       if (eval > bestEval) {
         bestEval = eval;
         bestState = child;
@@ -799,6 +799,6 @@ class GameController extends GetxController {
 
     return player2Score - player1Score;
   }
-  // todo: make three difficulties
+  // todo: make three difficulties and switch for pc mode
 // todo: do report
 }
