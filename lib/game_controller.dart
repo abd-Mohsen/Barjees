@@ -312,7 +312,7 @@ class GameController extends GetxController {
   }
 
   Future<void> throwShells() async {
-    if (remainingThrows == 0) return;
+    if (remainingThrows == 0 || throwCounter > 3) return;
     int res = randomWithProbability();
     List<Widget> shells = [];
     for (int i = 0; i < 6; i++) {
@@ -579,8 +579,8 @@ class GameController extends GetxController {
       for (Board child in nextStates) {
         int eval = await minimax(child, depth - 1, alpha, beta, false);
         maxEval = max(maxEval, eval);
-        alpha = max(alpha, eval);
-        if (beta <= alpha) break;
+        // alpha = max(alpha, eval);
+        // if (beta <= alpha) break;
       }
       return maxEval;
     } else {
@@ -588,8 +588,8 @@ class GameController extends GetxController {
       for (Board child in nextStates) {
         int eval = await minimax(child, depth - 1, alpha, beta, true);
         minEval = min(minEval, eval);
-        beta = min(beta, eval);
-        if (beta <= alpha) break;
+        // beta = min(beta, eval);
+        // if (beta <= alpha) break;
       }
       return minEval;
     }
@@ -601,7 +601,7 @@ class GameController extends GetxController {
     List<Board> states = await getNextStates(board);
     for (Board child in states) {
       int eval = await minimax(child, depth - 1, -99999, 99999, true);
-      //int eval2 = evaluate(child);
+      //int eval = evaluate(child);
       if (eval > bestEval) {
         bestEval = eval;
         bestState = child;
@@ -626,8 +626,8 @@ class GameController extends GetxController {
 
   Future<List<Board>> getNextStates(Board state) async {
     Set<Board> res = {};
-    //List<String> copy = List.from(actions);
-    List<String> copy = ["اربعة", "دست", "خال", "بارا", "بارا"];
+    List<String> copy = List.from(actions);
+    //List<String> copy = ["اربعة", "دست", "خال", "بارا", "بارا"];
     List<List<String>> permutations = getPermutations(copy);
 
     Future<void> generate(int i, Board state, List<String> perm) async {
