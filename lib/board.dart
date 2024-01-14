@@ -14,9 +14,7 @@ class Board {
 
   @override
   String toString() {
-    print(player1);
-    print(player2);
-    return super.toString();
+    return "$player1 $player2";
   }
 
   bool isTerminal() {

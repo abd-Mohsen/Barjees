@@ -290,6 +290,7 @@ class GameController extends GetxController {
   };
 
   int remainingThrows = 1;
+  int throwCounter = 0;
 
   //just a test, don't mind it
   void drawPath() async {
@@ -321,12 +322,12 @@ class GameController extends GetxController {
     switch (res) {
       case 0:
         {
-          if (remainingThrows < 4) remainingThrows++;
+          if (throwCounter < 4) remainingThrows++;
           actions.add("شكة"); // move 6
         }
       case 1:
         {
-          if (remainingThrows < 4) remainingThrows++;
+          if (throwCounter < 4) remainingThrows++;
           actions.add("خال");
           actions.add("دست"); // move 10
         }
@@ -344,13 +345,13 @@ class GameController extends GetxController {
         }
       case 5:
         {
-          if (remainingThrows < 4) remainingThrows++;
+          if (throwCounter < 4) remainingThrows++;
           actions.add("خال");
           actions.add("بنج"); // move 24
         }
       case 6:
         {
-          if (remainingThrows < 6) remainingThrows++;
+          if (throwCounter < 4) remainingThrows++;
           actions.add("بارا"); // move 12
         }
 
@@ -358,6 +359,7 @@ class GameController extends GetxController {
         actions.add("wtf");
     }
     remainingThrows--;
+    throwCounter++;
     Get.showSnackbar(
       GetSnackBar(
         duration: const Duration(milliseconds: 800),
@@ -477,6 +479,7 @@ class GameController extends GetxController {
     if (remainingThrows == 0 && (actions.isEmpty || noActionAvailable(currentBoard))) {
       actions.clear();
       turn ? turn = false : turn = true;
+      throwCounter = 0;
       remainingThrows++;
       await Future.delayed(const Duration(milliseconds: 800));
       if (!turn) await pc();
@@ -484,6 +487,15 @@ class GameController extends GetxController {
   }
 
   bool noActionAvailable(Board state) {
+    for (String action in actions) {
+      for (int i = 0; i < 4; i++) {
+        if (validateAction(i, action, state)) return false;
+      }
+    }
+    return true;
+  }
+
+  bool noActionAvailable2(Board state, List<String> actions) {
     for (String action in actions) {
       for (int i = 0; i < 4; i++) {
         if (validateAction(i, action, state)) return false;
@@ -539,6 +551,8 @@ class GameController extends GetxController {
     return res;
   }
 
+  int maxDepth = 2;
+
   Future<void> pc() async {
     await Future.delayed(const Duration(milliseconds: 400));
     if (!computer) return;
@@ -548,7 +562,7 @@ class GameController extends GetxController {
       await Future.delayed(const Duration(milliseconds: 1200));
     }
     await Future.delayed(const Duration(milliseconds: 800));
-    Board? newState = await findBestState(currentBoard, 2);
+    Board? newState = await findBestState(currentBoard, maxDepth);
     actions.clear();
     if (newState != null) currentBoard = newState;
     await switchTurn();
@@ -556,35 +570,38 @@ class GameController extends GetxController {
     update();
   }
 
-  Future<int> minimax(Board board, int depth, bool isMax) async {
-    if (depth == 0 || board.isTerminal()) {
-      return evaluate(board);
-    }
-    var nextStates = await getNextStates();
+  Future<int> minimax(Board board, int depth, int alpha, int beta, bool isMax) async {
+    if (depth == 0 || board.isTerminal()) return evaluate(board);
+
+    var nextStates = await predictNextStates(board);
     if (isMax) {
-      int maxEval = -9999;
+      int maxEval = -999999;
       for (Board child in nextStates) {
-        int eval = await minimax(child, depth - 1, false);
+        int eval = await minimax(child, depth - 1, alpha, beta, false);
         maxEval = max(maxEval, eval);
+        alpha = max(alpha, eval);
+        if (beta <= alpha) break;
       }
       return maxEval;
     } else {
-      int minEval = 9999;
+      int minEval = 999999;
       for (Board child in nextStates) {
-        int eval = await minimax(child, depth - 1, true);
+        int eval = await minimax(child, depth - 1, alpha, beta, true);
         minEval = min(minEval, eval);
+        beta = min(beta, eval);
+        if (beta <= alpha) break;
       }
       return minEval;
     }
   }
 
   Future<Board?> findBestState(Board board, int depth) async {
-    int bestEval = -9999;
+    int bestEval = -999999;
     Board? bestState;
-    var states = await getNextStates();
+    List<Board> states = await getNextStates(board);
     for (Board child in states) {
-      //int eval = minimax(child, depth - 1, false);
-      int eval = evaluate(child);
+      int eval = await minimax(child, depth - 1, -99999, 99999, true);
+      //int eval2 = evaluate(child);
       if (eval > bestEval) {
         bestEval = eval;
         bestState = child;
@@ -599,7 +616,7 @@ class GameController extends GetxController {
   }
 
   Future<Board?> doActionPc(int id, String action, Board state) async {
-    if (remainingThrows > 0 || !validateAction(id, action, state)) return null;
+    if (!validateAction(id, action, state)) return null;
 
     state = state.getNextState(actionValue[action]!, id, turn);
     eliminate(id, state);
@@ -607,14 +624,13 @@ class GameController extends GetxController {
     return state;
   }
 
-  Future<List<Board>> getNextStates() async {
+  Future<List<Board>> getNextStates(Board state) async {
     Set<Board> res = {};
-    List<String> copy = List.from(actions);
-    //List<String> copy = ["تلاتة", "اربعة", "خال", "بنج", "دست", "خال"];
+    //List<String> copy = List.from(actions);
+    List<String> copy = ["اربعة", "دست", "خال", "بارا", "بارا"];
     List<List<String>> permutations = getPermutations(copy);
 
     Future<void> generate(int i, Board state, List<String> perm) async {
-      print(i);
       if (i == copy.length || noActionAvailable(state)) {
         res.add(state);
         return;
@@ -628,18 +644,96 @@ class GameController extends GetxController {
 
     int limit = permutations.length < 720 ? permutations.length : 720;
     for (int i = 0; i < limit; i++) {
-      await generate(0, currentBoard, permutations[i]);
+      await generate(0, state, permutations[i]);
     }
-
     print(res);
-
     return res.toList();
   }
 
+  Future<List<Board>> predictNextStates(Board state) async {
+    Set<Board> res = {};
+    List<String> copy = throwShells2();
+    List<List<String>> permutations = getPermutations(copy);
+    print(permutations);
+
+    Future<void> generate(int i, Board state, List<String> perm) async {
+      print("$i/${copy.length}");
+      if (i == copy.length || noActionAvailable2(state, copy)) {
+        res.add(state);
+        return;
+      }
+      print(">?");
+      for (int stone = 0; stone < 4; stone++) {
+        print("in");
+        Board? newState = await doActionPc(stone, perm[i], state);
+        if (newState != null) generate(i + 1, newState, perm);
+      }
+    }
+
+    int limit = permutations.length < 720 ? permutations.length : 720;
+    for (int i = 0; i < limit; i++) {
+      await generate(0, state, permutations[i]);
+    }
+    print(res);
+    return res.toList();
+  }
+
+  List<String> throwShells2() {
+    List<String> resActions = [];
+    int throwsLeft = 1;
+    int times = 0;
+
+    void helper() {
+      int res = randomWithProbability();
+      switch (res) {
+        case 0:
+          {
+            if (times < 4) throwsLeft++;
+            resActions.add("شكة"); // move 6
+          }
+        case 1:
+          {
+            if (times < 4) throwsLeft++;
+            resActions.add("خال");
+            resActions.add("دست"); // move 10
+          }
+        case 2:
+          {
+            resActions.add("دواق"); // move 2
+          }
+        case 3:
+          {
+            resActions.add("تلاتة"); // move 3
+          }
+        case 4:
+          {
+            resActions.add("أربعة"); // move 4
+          }
+        case 5:
+          {
+            if (times < 4) throwsLeft++;
+            resActions.add("خال");
+            resActions.add("بنج"); // move 24
+          }
+        case 6:
+          {
+            if (times < 4) throwsLeft++;
+            resActions.add("بارا"); // move 12
+          }
+      }
+      throwsLeft--;
+    }
+
+    while (throwsLeft > 0) {
+      helper();
+    }
+    return resActions;
+  }
+
   void tst() {
-    //List<String> list = ["تلاتة", "اربعة", "خال", "بنج", "دست", "خال"];
+    //List<String> list = ["اربعة", "دست", "خال", "بارا", "بارا"];
     //Permutations<String> permutations = Permutations(actions.length, actions);
-    getNextStates();
+    predictNextStates(currentBoard);
   }
 
   List<List<String>> getPermutations(List<String> list) {
@@ -688,14 +782,13 @@ class GameController extends GetxController {
     int player1Score = 0, player2Score = 0;
     player1Score += state.player1.sum.abs();
     player2Score += state.player2.sum.abs();
-    // check if you can land on x
     // check if the stone has high progress
 
     // check if it has less -1 (to insure that he use خال for inserting stones & that you can kick out stones)
     for (int progress in state.player1) {
       if (progress != -1) player1Score += 40;
-      if (progress == 83) player1Score += 30;
-      if (progress != -1 && castle.contains(path1[progress])) player1Score += 25;
+      if (progress == 83) player1Score += 30; // to not get stuck before kitchen
+      if (progress != -1 && castle.contains(path1[progress])) player1Score += 25; // to prioritize landing on X
     }
 
     for (int progress in state.player2) {
