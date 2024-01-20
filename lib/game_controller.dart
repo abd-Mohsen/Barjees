@@ -50,6 +50,7 @@ class GameController extends GetxController {
     List<StoneModel> stones1 = List.generate(4, (i) => StoneModel(id: i, player: true));
     List<StoneModel> stones2 = List.generate(4, (i) => StoneModel(id: i, player: false));
     stones = [...stones1, ...stones2];
+    if (computer && !turn) pc();
     super.onInit();
   }
 
@@ -58,7 +59,7 @@ class GameController extends GetxController {
 
   // playing against computer?
   bool computer = true;
-  int difficulty = 0; // 0 -> easy , 1 -> medium, 2 -> hard
+  int difficulty = 1; // 0 -> easy , 1 -> medium, 2 -> hard
 
   // actions generated from throwing in the current turn
   List<String> actions = [];
@@ -297,7 +298,7 @@ class GameController extends GetxController {
 
   Future<void> throwShells() async {
     if (remainingThrows == 0 || throwCounter > 3) return;
-    int res = randomWithProbability();
+    int res = randomWithProbability(); // todo: everything goes to shit when reaching 4 throws
     List<Widget> shells = [];
     for (int i = 0; i < 6; i++) {
       shells.add(Shell(closed: i < res));
@@ -346,7 +347,7 @@ class GameController extends GetxController {
     throwCounter++;
     Get.showSnackbar(
       GetSnackBar(
-        duration: const Duration(milliseconds: 1200),
+        duration: const Duration(milliseconds: 800),
         titleText: Text(
           throwName[res]!,
           style: TextStyle(
@@ -386,7 +387,7 @@ class GameController extends GetxController {
   }
 
   Future<void> doAction(int id, String action) async {
-    if (remainingThrows > 0 || !validateAction(id, action, currentBoard)) return;
+    if ((remainingThrows > 0 && throwCounter < 4) || !validateAction(id, action, currentBoard)) return;
     currentBoard = currentBoard.getNextState(actionValue[action]!, id, turn);
     actions.remove(action);
     eliminate(id, currentBoard); // pass the id of the eliminator
@@ -453,7 +454,7 @@ class GameController extends GetxController {
 
   Future<void> switchTurn() async {
     update();
-    if (remainingThrows == 0 && (actions.isEmpty || noActionAvailable(currentBoard))) {
+    if ((remainingThrows == 0 || throwCounter > 3) && (actions.isEmpty || noActionAvailable(currentBoard))) {
       actions.clear();
       turn ? turn = false : turn = true;
       throwCounter = 0;
@@ -533,7 +534,7 @@ class GameController extends GetxController {
   Future<void> pc() async {
     await Future.delayed(const Duration(milliseconds: 400));
     if (!computer) return;
-    while (remainingThrows > 0) {
+    while (remainingThrows > 0 && throwCounter < 4) {
       await throwShells();
       await Future.delayed(const Duration(milliseconds: 1200));
     }
@@ -595,10 +596,11 @@ class GameController extends GetxController {
 
     state = state.getNextState(actionValue[action]!, id, turn);
     eliminate(id, state);
-    print("${state.player2} ${state.player1}");
+    print(state);
     return state;
   }
 
+  // todo: very slow, fix
   Future<List<Board>> medium(Board state) async {
     Set<Board> res = {};
     List<String> copy = List.from(actions);
@@ -615,7 +617,7 @@ class GameController extends GetxController {
       }
     }
 
-    int limit = permutations.length < 720 ? permutations.length : 720;
+    int limit = permutations.length < 100 ? permutations.length : 100;
     for (int i = 0; i < limit; i++) {
       await generate(0, state, permutations[i]);
     }
@@ -773,5 +775,4 @@ class GameController extends GetxController {
 
     return player2Score - player1Score;
   }
-  // todo: make three difficulties and switch for pc mode
 }

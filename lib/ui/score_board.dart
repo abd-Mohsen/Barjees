@@ -85,7 +85,7 @@ class ScoreBoard extends StatelessWidget {
                       onTap: () async => await gC.throwShells(),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: gC.remainingThrows > 0 ? Colors.redAccent : Colors.grey,
+                          color: gC.remainingThrows > 0 && gC.throwCounter < 4 ? Colors.redAccent : Colors.grey,
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: Padding(
