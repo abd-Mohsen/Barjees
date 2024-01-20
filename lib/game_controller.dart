@@ -481,6 +481,16 @@ class GameController extends GetxController {
     return true;
   }
 
+  void setDifficulty(int val) {
+    difficulty = val;
+    update();
+  }
+
+  void setComputer(bool val) {
+    computer = val;
+    update();
+  }
+
   List<int> getPositions() {
     return turn ? currentBoard.player1 : currentBoard.player2;
   }

@@ -11,7 +11,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    GameController gC = Get.put(GameController());
+    GameController gC = Get.find();
 
     Widget drawCell(int row, int column) {
       String type = gC.cells[row][column];

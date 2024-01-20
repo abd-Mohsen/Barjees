@@ -1,5 +1,5 @@
+import 'package:algo_project/ui/welcome_page.dart';
 import 'package:flutter/material.dart';
-import 'package:algo_project/ui/home_page.dart';
 import 'package:get/get.dart';
 
 void main() {
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return const GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Barsis game',
-      home: HomePage(),
+      home: WelcomePage(),
       locale: Locale('ar'),
       themeMode: ThemeMode.dark,
     );
