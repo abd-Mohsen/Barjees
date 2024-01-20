@@ -38,6 +38,8 @@ class GameController extends GetxController {
   ];
 
   late Board currentBoard;
+  late List<StoneModel> stones;
+
   @override
   void onInit() {
     currentBoard = Board(
@@ -51,16 +53,17 @@ class GameController extends GetxController {
     super.onInit();
   }
 
-  late List<StoneModel> stones;
-
   // is player1 turn
   bool turn = true;
+
+  // playing against computer?
   bool computer = true;
+  int difficulty = 0; // 0 -> easy , 1 -> medium, 2 -> hard
 
   // actions generated from throwing in the current turn
   List<String> actions = [];
 
-  // path that player1 stones take to reach kitchen
+  // path that player1 stones follows to reach kitchen
   final List<Position> path1 = [
     Position(9, 7),
     Position(9, 6),
@@ -148,7 +151,7 @@ class GameController extends GetxController {
     Position(9, 8),
   ];
 
-  // path that player2 stones take to reach kitchen
+  // path that player2 stones follows to reach kitchen
   final List<Position> path2 = [
     Position(9, 11),
     Position(9, 12),
@@ -242,7 +245,7 @@ class GameController extends GetxController {
   // initial location of every player2 piece on path2
   List<int> p2 = [-1, -1, -1, -1];
 
-  // throw name, depending on the num of closed shells
+  // throw name, depending on the number of closed shells
   final Map<int, String> throwName = {
     0: "شكة",
     1: "دست",
@@ -290,26 +293,7 @@ class GameController extends GetxController {
   };
 
   int remainingThrows = 1;
-  int throwCounter = 0;
-
-  //just a test, don't mind it
-  // void drawPath() async {
-  //   for (Position pos in kitchen) {
-  //     cells[pos.r][pos.c] == ' ' || cells[pos.r][pos.c] == 'k' ? cells[pos.r][pos.c] = 'a' : cells[pos.r][pos.c] = ' ';
-  //     print("${pos.r},${pos.c}");
-  //     await Future.delayed(const Duration(milliseconds: 200));
-  //     update();
-  //   }
-  // }
-
-  // void restartGame() {
-  //   currentBoard = Board(
-  //     player1: List.from(p1),
-  //     player2: List.from(p2),
-  //     depth: 0,
-  //   );
-  //   update();
-  // }
+  int throwCounter = 0; // used to limit how many times we can throw
 
   Future<void> throwShells() async {
     if (remainingThrows == 0 || throwCounter > 3) return;
@@ -401,17 +385,13 @@ class GameController extends GetxController {
     }
   }
 
-  Future<Board?> doAction(int id, String action) async {
-    if (remainingThrows > 0 || !validateAction(id, action, currentBoard)) return null;
-
-    //turn ? currentBoard.player1[id] += actionValue[action]! : currentBoard.player2[id] += actionValue[action]!;
+  Future<void> doAction(int id, String action) async {
+    if (remainingThrows > 0 || !validateAction(id, action, currentBoard)) return;
     currentBoard = currentBoard.getNextState(actionValue[action]!, id, turn);
     actions.remove(action);
     eliminate(id, currentBoard); // pass the id of the eliminator
-
     if (turn || (!turn && !computer)) await switchTurn();
     update();
-    return currentBoard;
   }
 
   List<String> showActions(int id) {
@@ -419,7 +399,6 @@ class GameController extends GetxController {
     for (String action in actions.toSet()) {
       if (validateAction(id, action, currentBoard)) res.add(action);
     }
-    //print(res);
     return res;
   }
 
@@ -429,10 +408,9 @@ class GameController extends GetxController {
     int pos1 = state.player1[id];
     int pos2 = state.player2[id];
     bool outOfBounds = turn ? pos1 + val > 83 : pos2 + val > 83;
-    if (outOfBounds) return false; // try this
+    if (outOfBounds) return false;
     bool blocked = opponentInCastle(turn ? path1[pos1 + val] : path2[pos2 + val]);
     bool outside = action != "خال" && (turn ? pos1 == -1 : pos2 == -1);
-    //print("$action: $blocked, $outOfBounds, $outside");
     return !blocked && !outOfBounds && !outside;
   }
 
@@ -455,7 +433,6 @@ class GameController extends GetxController {
   void eliminate(int id, Board state) {
     List<int> pos1 = state.player1;
     List<int> pos2 = state.player2;
-    // check if those two lists are passed by val or ref
     Position pos = turn ? path1[pos1[id]] : path2[pos2[id]];
     if (opponentInCastle(pos)) return;
     if (turn) {
@@ -504,23 +481,11 @@ class GameController extends GetxController {
     return true;
   }
 
-  // print current state
-  void printBoard() {
-    for (List<String> row in cells) {
-      String s = "";
-      for (String cell in row) {
-        // print stone instead if exists in current position
-        s = '$s $cell ';
-      }
-      print(s);
-    }
-    print("");
-  }
-
   List<int> getPositions() {
     return turn ? currentBoard.player1 : currentBoard.player2;
   }
 
+  // to get player 1 stones in a certain position (cell)
   List<StoneModel> getStones1(int r, int c) {
     List<StoneModel> res = [];
     for (StoneModel stone in stones.where((element) => element.player)) {
@@ -535,6 +500,7 @@ class GameController extends GetxController {
     return res;
   }
 
+  // to get player 2 stones in a certain position (cell)
   List<StoneModel> getStones2(int r, int c) {
     //currentBoard.player1[i] == -1 ? Position(2 + i, 2) : path1[currentBoard.player1[i]],
     //currentBoard.player2[i] == -1 ? Position(13 + i, 17) : path2[currentBoard.player2[i]],
@@ -551,12 +517,12 @@ class GameController extends GetxController {
     return res;
   }
 
-  int maxDepth = 2;
+  int maxDepth = 2; // for minimax algorithm
 
+  // to let pc play
   Future<void> pc() async {
     await Future.delayed(const Duration(milliseconds: 400));
     if (!computer) return;
-    //if (turn) return;
     while (remainingThrows > 0) {
       await throwShells();
       await Future.delayed(const Duration(milliseconds: 1200));
@@ -566,7 +532,6 @@ class GameController extends GetxController {
     actions.clear();
     if (newState != null) currentBoard = newState;
     await switchTurn();
-    print("pc played");
     update();
   }
 
@@ -579,8 +544,8 @@ class GameController extends GetxController {
       for (Board child in nextStates) {
         int eval = await minimax(child, depth - 1, alpha, beta, false);
         maxEval = max(maxEval, eval);
-        // alpha = max(alpha, eval);
-        // if (beta <= alpha) break;
+        alpha = max(alpha, eval);
+        if (beta <= alpha) break;
       }
       return maxEval;
     } else {
@@ -588,8 +553,8 @@ class GameController extends GetxController {
       for (Board child in nextStates) {
         int eval = await minimax(child, depth - 1, alpha, beta, true);
         minEval = min(minEval, eval);
-        // beta = min(beta, eval);
-        // if (beta <= alpha) break;
+        beta = min(beta, eval);
+        if (beta <= alpha) break;
       }
       return minEval;
     }
@@ -598,21 +563,21 @@ class GameController extends GetxController {
   Future<Board?> findBestState(Board board, int depth) async {
     int bestEval = -999999;
     Board? bestState;
-    List<Board> states = await getNextStates(board);
-    for (Board child in states) {
-      //int eval = await minimax(child, depth - 1, -99999, 99999, true);
-      int eval = evaluate(child);
-      if (eval > bestEval) {
-        bestEval = eval;
-        bestState = child;
+    if (difficulty == 0) {
+      bestState = await easy(currentBoard);
+    } else {
+      List<Board> states = await medium(board);
+      for (Board child in states) {
+        int eval = difficulty == 1 ? evaluate(child) : await minimax(child, depth - 1, -99999, 99999, true);
+        if (eval > bestEval) {
+          bestEval = eval;
+          bestState = child;
+        }
       }
     }
-    if (bestState != null) {
-      return bestState;
-    } else {
-      print("no better state");
-    }
-    return null;
+
+    if (bestState == null) print("no better state");
+    return bestState;
   }
 
   Future<Board?> doActionPc(int id, String action, Board state) async {
@@ -624,10 +589,9 @@ class GameController extends GetxController {
     return state;
   }
 
-  Future<List<Board>> getNextStates(Board state) async {
+  Future<List<Board>> medium(Board state) async {
     Set<Board> res = {};
     List<String> copy = List.from(actions);
-    //List<String> copy = ["اربعة", "دست", "خال", "بارا", "بارا"];
     List<List<String>> permutations = getPermutations(copy);
 
     Future<void> generate(int i, Board state, List<String> perm) async {
@@ -636,7 +600,6 @@ class GameController extends GetxController {
         return;
       }
       for (int stone = 0; stone < 4; stone++) {
-        print("in");
         Board? newState = await doActionPc(stone, perm[i], state);
         if (newState != null) generate(i + 1, newState, perm);
       }
@@ -646,8 +609,18 @@ class GameController extends GetxController {
     for (int i = 0; i < limit; i++) {
       await generate(0, state, permutations[i]);
     }
-    print(res);
     return res.toList();
+  }
+
+  Future<Board?> easy(Board state) async {
+    Board? res;
+    for (String action in actions) {
+      for (int i = 0; i < 4; i++) {
+        res = await doActionPc(i, action, state);
+      }
+    }
+    actions.clear();
+    return res;
   }
 
   Future<List<Board>> predictNextStates(Board state) async {
@@ -657,14 +630,11 @@ class GameController extends GetxController {
     print(permutations);
 
     Future<void> generate(int i, Board state, List<String> perm) async {
-      print("$i/${copy.length}");
       if (i == copy.length || noActionAvailable2(state, copy)) {
         res.add(state);
         return;
       }
-      print(">?");
       for (int stone = 0; stone < 4; stone++) {
-        print("in");
         Board? newState = await doActionPc(stone, perm[i], state);
         if (newState != null) generate(i + 1, newState, perm);
       }
@@ -728,12 +698,6 @@ class GameController extends GetxController {
       helper();
     }
     return resActions;
-  }
-
-  void tst() {
-    //List<String> list = ["اربعة", "دست", "خال", "بارا", "بارا"];
-    //Permutations<String> permutations = Permutations(actions.length, actions);
-    predictNextStates(currentBoard);
   }
 
   List<List<String>> getPermutations(List<String> list) {
@@ -800,5 +764,4 @@ class GameController extends GetxController {
     return player2Score - player1Score;
   }
   // todo: make three difficulties and switch for pc mode
-// todo: do report
 }

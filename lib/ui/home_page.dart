@@ -146,14 +146,13 @@ class HomePage extends StatelessWidget {
           ),
         ),
         actions: [
-          IconButton(
-            tooltip: "test path",
-            onPressed: () async {
-              //await gC.getNextStates();
-              gC.tst();
-            },
-            icon: const Icon(Icons.account_tree_sharp),
-          ),
+          // IconButton(
+          //   tooltip: "test path",
+          //   onPressed: () async {
+          //     //await gC.getNextStates()
+          //   },
+          //   icon: const Icon(Icons.account_tree_sharp),
+          // ),
         ],
       ),
       backgroundColor: Color(0xFF121212),

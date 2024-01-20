@@ -1,3 +1,4 @@
+// to store the position of a stone
 class Position {
   int r;
   int c;
