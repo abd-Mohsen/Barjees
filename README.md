@@ -2,6 +2,7 @@
 
 This repository contains the source code for a board game called Barsis, developed using Flutter framework and Dart language.
 
+
 ## Game Description
 
 Barsis is a two-player board game where the objective is to get all four of your stones to the middle of the board before your opponent does. The game can be played either against another player or against the computer.
@@ -26,7 +27,7 @@ The computer opponent in Barsis has three difficulty levels:
 3. **Hard**: The computer uses the minimax algorithm (specifically, the expectiminimax variant) to predict all possible states by considering the worst-case scenario for its opponent (the player). It then selects the move that leads to the best outcome for itself.
 
 
-This game was developed as an assignment for a course at [Damascus University]. The assignment aimed to demonstrate proficiency in implementing state 
+This game was developed as an assignment for a course at Damascus University. The assignment aimed to demonstrate proficiency in implementing state 
 space search algorithms and simple game logic.
 
 Feel free to explore the source code and contribute to the project if you'd like!
