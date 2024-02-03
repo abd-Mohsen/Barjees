@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:algo_project/permutations.dart';
 import 'package:algo_project/position.dart';
 import 'package:algo_project/stone_model.dart';
 import 'package:algo_project/ui/shell.dart';
@@ -365,6 +366,7 @@ class GameController extends GetxController {
     update();
   }
 
+  // calculated the probability of getting a certain number of opened shells
   int randomWithProbability() {
     Random random = Random();
     double randomNumber = random.nextDouble();
@@ -386,6 +388,7 @@ class GameController extends GetxController {
     }
   }
 
+  // generates a new state when user do an action
   Future<void> doAction(int id, String action) async {
     if ((remainingThrows > 0 && throwCounter < 4) || !validateAction(id, action, currentBoard)) return;
     currentBoard = currentBoard.getNextState(actionValue[action]!, id, turn);
@@ -395,6 +398,7 @@ class GameController extends GetxController {
     update();
   }
 
+  // show a set of available actions for a certain stone
   List<String> showActions(int id) {
     List<String> res = [];
     for (String action in actions.toSet()) {
@@ -710,42 +714,6 @@ class GameController extends GetxController {
       helper();
     }
     return resActions;
-  }
-
-  List<List<String>> getPermutations(List<String> list) {
-    List<List<String>> permutations = [];
-    _generatePermutations(list, 0, permutations);
-    return permutations;
-  }
-
-  void _generatePermutations(List<String> list, int start, List<List<String>> permutations) {
-    if (start == list.length - 1) {
-      permutations.add(List.from(list));
-      return;
-    }
-
-    for (int i = start; i < list.length; i++) {
-      if (_shouldSwap(list, start, i)) {
-        _swap(list, start, i);
-        _generatePermutations(list, start + 1, permutations);
-        _swap(list, start, i);
-      }
-    }
-  }
-
-  bool _shouldSwap(List<String> list, int start, int current) {
-    for (int i = start; i < current; i++) {
-      if (list[i] == list[current]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  void _swap(List<String> list, int i, int j) {
-    String temp = list[i];
-    list[i] = list[j];
-    list[j] = temp;
   }
 
   int evaluate(Board state) {
