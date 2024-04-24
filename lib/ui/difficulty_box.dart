@@ -50,7 +50,10 @@ class DifficultyBox extends StatelessWidget {
                 onPressed: () {
                   Get.defaultDialog(
                     title: "طريقة اللعب",
-                    middleText: info,
+                    content: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(info),
+                    ),
                   );
                 },
                 icon: Icon(Icons.info_outline)),

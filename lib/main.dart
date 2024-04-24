@@ -10,10 +10,11 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
+  //todo: test medium and ez, make it responsive, fix sizes(rotate board?), loading indicator
   Widget build(BuildContext context) {
     return const GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Barsis game',
+      title: 'Barjis game',
       home: WelcomePage(),
       locale: Locale('ar'),
       themeMode: ThemeMode.dark,

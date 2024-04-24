@@ -82,7 +82,7 @@ class WelcomePage extends StatelessWidget {
                           title: "مستوى متوسط",
                           color: Colors.orangeAccent,
                           info: "يتم توليد جميع الحالات التالية الممكنة (جميع التراتيب لجميع الاحجار والحركات "
-                              "المتاحة) ثم اختيار الحالة الافضل للحاسوب من خلال تابع تقييم مناسب",
+                              "المتاحة)\n ثم اختيار الحالة الافضل للحاسوب من خلال تابع تقييم مناسب",
                           selected: gC.difficulty == 1,
                           onTap: () {
                             gC.setDifficulty(1);
@@ -93,7 +93,7 @@ class WelcomePage extends StatelessWidget {
                         visible: gC.computer,
                         child: DifficultyBox(
                           title: "مستوى صعب",
-                          color: Colors.redAccent,
+                          color: Colors.grey,
                           info: "قريباً",
                           selected: gC.difficulty == 2,
                           onTap: null,

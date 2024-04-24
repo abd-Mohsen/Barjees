@@ -43,6 +43,10 @@ class GameController extends GetxController {
 
   @override
   void onInit() {
+    // initial location of every player1 piece on path1
+    List<int> p1 = [-1, -1, -1, -1];
+    // initial location of every player2 piece on path2
+    List<int> p2 = [-1, -1, -1, -1];
     currentBoard = Board(
       player1: List.from(p1),
       player2: List.from(p2),
@@ -241,12 +245,6 @@ class GameController extends GetxController {
     Position(9, 10),
   ];
 
-  // initial location of every player1 piece on path1
-  List<int> p1 = [-1, -1, -1, -1];
-
-  // initial location of every player2 piece on path2
-  List<int> p2 = [-1, -1, -1, -1];
-
   // throw name, depending on the number of closed shells
   final Map<int, String> throwName = {
     0: "شكة",
@@ -362,6 +360,7 @@ class GameController extends GetxController {
         ),
       ),
     );
+    await Future.delayed(Duration(milliseconds: 600));
     if (turn || (!turn && !computer)) await switchTurn();
     update();
   }
@@ -460,7 +459,8 @@ class GameController extends GetxController {
     update();
     if ((remainingThrows == 0 || throwCounter > 3) && (actions.isEmpty || noActionAvailable(currentBoard))) {
       actions.clear();
-      turn ? turn = false : turn = true;
+      //turn ? turn = false : turn = true;
+      turn = !turn;
       throwCounter = 0;
       remainingThrows++;
       await Future.delayed(const Duration(milliseconds: 800));
@@ -536,13 +536,13 @@ class GameController extends GetxController {
 
   // to let pc play
   Future<void> pc() async {
-    await Future.delayed(const Duration(milliseconds: 400));
     if (!computer) return;
+    //await Future.delayed(const Duration(milliseconds: 400));
     while (remainingThrows > 0 && throwCounter < 4) {
       await throwShells();
       await Future.delayed(const Duration(milliseconds: 1200));
     }
-    await Future.delayed(const Duration(milliseconds: 800));
+    //await Future.delayed(const Duration(milliseconds: 800));
     Board? newState = await findBestState(currentBoard, maxDepth);
     actions.clear();
     if (newState != null) currentBoard = newState;
@@ -578,10 +578,10 @@ class GameController extends GetxController {
   Future<Board?> findBestState(Board board, int depth) async {
     int bestEval = -999999;
     Board? bestState;
+    List<Board> states = await medium(board);
     if (difficulty == 0) {
-      bestState = await easy(currentBoard);
+      bestState = states.isNotEmpty ? states[0] : null;
     } else {
-      List<Board> states = await medium(board);
       for (Board child in states) {
         int eval = difficulty == 1 ? evaluate(child) : await minimax(child, depth - 1, -99999, 99999, true);
         if (eval > bestEval) {

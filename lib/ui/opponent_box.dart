@@ -15,8 +15,11 @@ class OpponentBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      highlightColor: Colors.transparent,
+      enableFeedback: false,
+      splashColor: Colors.transparent,
       child: Container(
         height: 400,
         width: 400,
