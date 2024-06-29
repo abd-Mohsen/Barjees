@@ -3,9 +3,10 @@ import 'package:algo_project/ui/score_board.dart';
 import 'package:algo_project/ui/stone.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'dart:math';
 import '../game_controller.dart';
 
+//todo: make this page responsive
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -80,52 +81,55 @@ class HomePage extends StatelessWidget {
 
     Widget buildGameBody() {
       int rowsCount = gC.cells.length;
-      return GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: rowsCount,
-        ),
-        itemCount: (rowsCount) * (rowsCount),
-        itemBuilder: (context, index) {
-          int gridStateLength = gC.cells.length;
-          int r, c = 0;
-          r = (index / gridStateLength).floor();
-          c = (index % gridStateLength);
-          return GestureDetector(
-            onTap: () {
-              print("Position($r, $c),");
-            },
-            child: Center(
-              child: Stack(
-                children: [
-                  drawCell(r, c),
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ...gC.getStones1(r, c).take(2).map((stone) => Stone(stone: stone)).toList(),
-                            ...gC.getStones2(r, c).take(2).map((stone) => Stone(stone: stone)).toList(),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (gC.getStones1(r, c).length > 2)
-                              ...gC.getStones1(r, c).sublist(2).map((stone) => Stone(stone: stone)).toList(),
-                            if (gC.getStones2(r, c).length > 2)
-                              ...gC.getStones2(r, c).sublist(2).map((stone) => Stone(stone: stone)).toList(),
-                          ],
-                        ),
-                      ],
-                    ),
-                  )
-                ],
+      return Transform.rotate(
+        angle: pi * 2,
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: rowsCount,
+          ),
+          itemCount: (rowsCount) * (rowsCount),
+          itemBuilder: (context, index) {
+            int gridStateLength = gC.cells.length;
+            int r, c = 0;
+            r = (index / gridStateLength).floor();
+            c = (index % gridStateLength);
+            return GestureDetector(
+              onTap: () {
+                print("Position($r, $c),");
+              },
+              child: Center(
+                child: Stack(
+                  children: [
+                    drawCell(r, c),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ...gC.getStones1(r, c).take(2).map((stone) => Stone(stone: stone)).toList(),
+                              ...gC.getStones2(r, c).take(2).map((stone) => Stone(stone: stone)).toList(),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (gC.getStones1(r, c).length > 2)
+                                ...gC.getStones1(r, c).sublist(2).map((stone) => Stone(stone: stone)).toList(),
+                              if (gC.getStones2(r, c).length > 2)
+                                ...gC.getStones2(r, c).sublist(2).map((stone) => Stone(stone: stone)).toList(),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       );
     }
 
@@ -145,6 +149,26 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ),
+        actions: [
+          GetBuilder<GameController>(builder: (controller) {
+            return Center(
+              child: Visibility(
+                visible: controller.prevBoard != null,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    onTap: controller.halt
+                        ? null
+                        : () {
+                            controller.showPreviousState();
+                          },
+                    child: Text("اظهر الرقعة السابقة"),
+                  ),
+                ),
+              ),
+            );
+          })
+        ],
       ),
       backgroundColor: Color(0xFF121212),
       body: GetBuilder<GameController>(
@@ -157,6 +181,8 @@ class HomePage extends StatelessWidget {
                 iconData: Icons.person,
                 player: true,
               ),
+              //todo: rotate this container to save screen space
+
               Container(
                 padding: const EdgeInsets.all(6),
                 margin: const EdgeInsets.all(16),
@@ -164,8 +190,7 @@ class HomePage extends StatelessWidget {
                   color: kBoardColor,
                   borderRadius: BorderRadius.circular(16),
                 ),
-
-                //height: 800,
+                height: 800,
                 width: 560,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -177,7 +202,7 @@ class HomePage extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: buildGameBody(),
+                    child: Center(child: buildGameBody()),
                   ),
                 ),
               ),

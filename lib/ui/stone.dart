@@ -11,13 +11,13 @@ class Stone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    GameController hC = Get.find();
+    GameController gC = Get.find();
     //cursor: stone.player == hC.turn ? SystemMouseCursors.click : SystemMouseCursors.basic,
     return InkWell(
-      onTap: stone.player != hC.turn
+      onTap: stone.player != gC.turn || gC.halt
           ? null
           : () {
-              if (stone.player != hC.turn) return;
+              if (stone.player != gC.turn) return;
               showPopover(
                 context: context,
                 bodyBuilder: (context) => Column(
@@ -25,7 +25,7 @@ class Stone extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
-                        "${hC.getPositions()[stone.id] + 1}/84",
+                        "${gC.getPositions()[stone.id] + 1}/84",
                         style: TextStyle(
                           color: kNormalColor,
                           fontSize: 32,
@@ -37,15 +37,15 @@ class Stone extends StatelessWidget {
                     ),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: hC.showActions(stone.id).length,
+                        itemCount: gC.showActions(stone.id).length,
                         itemBuilder: (context, i) => ListTile(
                           onTap: () async {
                             Get.back();
-                            await hC.doAction(stone.id, hC.showActions(stone.id)[i]);
+                            await gC.doAction(stone.id, gC.showActions(stone.id)[i]);
                           },
                           title: Center(
                             child: Text(
-                              hC.showActions(stone.id)[i],
+                              gC.showActions(stone.id)[i],
                               style: TextStyle(
                                 color: kNormalColor,
                                 fontSize: 18,
@@ -69,8 +69,8 @@ class Stone extends StatelessWidget {
         Icons.circle,
         size: 13.5,
         color: stone.player
-            ? (hC.getPositions()[stone.id] > 74 ? Colors.indigoAccent.withOpacity(0.7) : Colors.indigoAccent)
-            : (hC.getPositions()[stone.id] > 74 ? Colors.white.withOpacity(0.7) : Colors.white),
+            ? (gC.getPositions()[stone.id] > 74 ? Colors.indigoAccent.withOpacity(0.7) : Colors.indigoAccent)
+            : (gC.getPositions()[stone.id] > 74 ? Colors.white.withOpacity(0.7) : Colors.white),
       ),
     );
   }

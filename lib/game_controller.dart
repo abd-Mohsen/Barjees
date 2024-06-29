@@ -10,6 +10,9 @@ import 'package:flutter/material.dart';
 import 'board.dart';
 import 'constants.dart';
 
+//todo: maybe,pc is selecting wrong state when there is a lot of actions
+//todo: pc not generating all states, thus missing out or not playing at all even if it has moves
+//todo: add a button to view previous state on hoover
 class GameController extends GetxController {
   // 19 * 19 grid
   // a for regular cell
@@ -38,18 +41,30 @@ class GameController extends GetxController {
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'a', 'a', 'a', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
   ];
 
+  bool halt = false;
+
   late Board currentBoard;
+  Board? prevBoard;
+  //Board? boardBuffer;
   late List<StoneModel> stones;
+
+  void showPreviousState() async {
+    Board buffer;
+    buffer = currentBoard;
+    currentBoard = prevBoard!;
+    halt = true;
+    update();
+    await Future.delayed(Duration(seconds: 3));
+    currentBoard = buffer;
+    halt = false;
+    update();
+  }
 
   @override
   void onInit() {
-    // initial location of every player1 piece on path1
-    List<int> p1 = [-1, -1, -1, -1];
-    // initial location of every player2 piece on path2
-    List<int> p2 = [-1, -1, -1, -1];
     currentBoard = Board(
-      player1: List.from(p1),
-      player2: List.from(p2),
+      player1: List.from([-1, -1, -1, -1]), // every stone place is -1 on the path
+      player2: List.from([-1, -1, -1, -1]),
       depth: 0,
     );
     List<StoneModel> stones1 = List.generate(4, (i) => StoneModel(id: i, player: true));
@@ -360,9 +375,10 @@ class GameController extends GetxController {
         ),
       ),
     );
+    update();
     await Future.delayed(Duration(milliseconds: 600));
     if (turn || (!turn && !computer)) await switchTurn();
-    update();
+    //update();
   }
 
   // calculated the probability of getting a certain number of opened shells
@@ -390,6 +406,7 @@ class GameController extends GetxController {
   // generates a new state when user do an action
   Future<void> doAction(int id, String action) async {
     if ((remainingThrows > 0 && throwCounter < 4) || !validateAction(id, action, currentBoard)) return;
+    prevBoard = currentBoard;
     currentBoard = currentBoard.getNextState(actionValue[action]!, id, turn);
     actions.remove(action);
     eliminate(id, currentBoard); // pass the id of the eliminator
@@ -545,7 +562,11 @@ class GameController extends GetxController {
     //await Future.delayed(const Duration(milliseconds: 800));
     Board? newState = await findBestState(currentBoard, maxDepth);
     actions.clear();
-    if (newState != null) currentBoard = newState;
+    if (newState != null) {
+      prevBoard = currentBoard;
+      currentBoard = newState;
+    }
+
     await switchTurn();
     update();
   }
@@ -628,16 +649,16 @@ class GameController extends GetxController {
     return res.toList();
   }
 
-  Future<Board?> easy(Board state) async {
-    Board? res;
-    for (String action in actions) {
-      for (int i = 0; i < 4; i++) {
-        res = await doActionPc(i, action, state);
-      }
-    }
-    actions.clear();
-    return res;
-  }
+  // Future<Board?> easy(Board state) async {
+  //   Board? res;
+  //   for (String action in actions) {
+  //     for (int i = 0; i < 4; i++) {
+  //       res = await doActionPc(i, action, state);
+  //     }
+  //   }
+  //   actions.clear();
+  //   return res;
+  // }
 
   Future<List<Board>> predictNextStates(Board state) async {
     Set<Board> res = {};
